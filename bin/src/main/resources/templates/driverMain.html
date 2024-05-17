@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>Taeum</title>
+<link rel="shortcut icon" href="#">
+<link rel="stylesheet" href="css/style.css">
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bxslider/4.2.15/jquery.bxslider.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bxslider/4.2.15/jquery.bxslider.min.js"></script>
+
+
+<script th:inline="javascript">
+  $(document).ready(function() {
+    // bxSlider configuration
+    $(".slider").bxSlider({
+      auto : true, // Auto slide
+      slideWidth : 600
+    // Slide width
+    });
+
+    // Message handling
+    const msg = null;
+    if (msg != null) {
+      alert(message);
+    }
+  });
+  
+  function redirectToDriverModify() {
+    window.location.href = '/driverModify';
+  }
+  function redirectToDriverUpdate() {
+    window.location.href = '/driverUpdate';
+  }
+  
+  $(function() {
+    const msg = /*[[${msg}]]*/null;
+    if (msg != null) {
+      alert(msg);
+    }
+    
+    var nList = /*[[${nList}]]*/ null;
+
+    //redCircle 이미지 요소 가져오기
+    var redCircle = document.getElementById('redCircle');
+
+    // nList 값이 존재하면 redCircle 이미지 표시
+    if (nList && nList.length > 0) {
+        redCircle.style.display = 'inline'; // redCircle 이미지 표시
+    } else {
+        redCircle.style.display = 'none'; // redCircle 이미지 숨김
+    }
+  });
+</script>
+
+<th:block th:insert="~{fragments::header}" />
+</head>
+<body>
+  <section>
+    <div class="content-home">
+      <div class="slider">
+        <div>
+          <img src="images/markus-winkler-3vlGNkDep4E-unsplash.jpg">
+        </div>
+        <div>
+          <img src="images/martin-kallur-ig-mkallur-l4m_o4aFOn8-unsplash.jpg">
+        </div>
+        <div>
+          <img src="images/mealpro-uFIfEb-fPA4-unsplash.jpg">
+        </div>
+        <div>
+          <img src="images/trinity-nguyen-dG0ZnlqKXEc-unsplash.jpg">
+        </div>
+      </div>
+    </div>
+    <div class="buttons-container">
+      <th:block sec:authorize="hasRole('DRIVER')">
+        <button onclick="redirectToDriverModify()">운행 시작</button>
+      </th:block>
+    </div>
+  </section>
+  <th:block th:insert="~{fragments::footer}" />
+</body>
+</html>

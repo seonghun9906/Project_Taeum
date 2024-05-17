@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<link rel="shortcut icon" href="#">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<script src="js/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<script th:inline="javascript">
+    $(function () {
+        let msg = /*[[${msg}]]*/ null;
+        if(msg != null){
+            alert(msg);
+        }
+    });
+</script>
+<th:block th:insert="~{fragments::header}" />
+</head>
+<body>
+<section>
+    <div class="content">
+        <form th:action="@{/findById}" class="login-form" method="Post">
+            <h2 class="login-header">아이디 찾기</h2>
+            <input type="text" class="login-input" name="m_name" title="이름" placeholder="이름" required="required"> 
+            <input type="text" class="login-input" name="m_phone" title="연락처" placeholder="연락처" required="required"> 
+            <input type="submit" class="btn-write" value="확인" id="find-btn"> 
+        </form>
+        <div class="btn-area">
+            <a th:href="@{/loginForm}" class="btn-write-btn">로그인</a>
+            <a th:href="@{/}" class="btn-write">뒤로가기</a>
+        </div>
+    </div>
+</section>
+<th:block th:insert="~{fragments::footer}" />
+</body>
+<script th:inline="javascript">
+    $(function(){
+
+    	$("#backbtn").click(function(){
+    	    let url = "/";
+    	    
+    	    location.href = url;
+    	  });
+    	  
+    	$("#loginbtn").click(function(){
+    	    let url = "loginForm";
+    	    
+    	    location.href = url;
+    	  });
+
+    });
+</script>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <link rel="shortcut icon" href="#">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taeum</title>
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script th:inline="javascript">
+        $(function () {
+            var msg = /*[[${msg}]]*/ null;
+            if (msg != null) {
+                alert(msg);
+            }
+        });
+    </script>
+    <th:block th:insert="~{fragments :: header}">
+        <script th:inline="javascript">
+            $(function () {
+                var member = /*[[${session.member}]]*/ null;
+                console.log("Member: ", member);
+            });
+        </script>
+    </th:block>
+</head>
+<body>
+<section>
+    <div class="content">
+        <form th:action="@{/joinProc}" method="post"
+              class="login-form" name="jForm"
+              onsubmit="return check()">
+            <h2 class="login-header">회원 가입</h2>
+            <input type="email" class="login-input"
+                   id="username" name="username" title="이메일"
+                   placeholder="이메일" required>
+            <input type="button" class="idcheck-btn"
+                   value="중복확인" onclick="emailCheck()">
+            <input type="password" class="login-input"
+                   name="password" title="비밀번호"
+                   placeholder="비밀번호" required>
+            <input type="text" class="login-input"
+                   name="M_NAME" title="이름"
+                   placeholder="이름" required>
+            <input type="text" class="login-input"
+                   name="M_PHONE" title="연락처"
+                   placeholder="연락처" required>
+            <input type="submit" class="login-btn"
+                   value="가입">
+        </form>
+    </div>
+</section>
+<th:block th:insert="~{fragments :: footer}" />
+</body>
+<script th:inline="javascript">
+    // id 중복 체크
+    var ck = false;
+    
+    function emailCheck() {
+        var email = $("#username").val();
+        if (email == "") {
+            alert("이메일을 입력하세요.");
+            $("#username").focus();
+            return;
+        }
+        
+        // 전송 데이터 형식에 맞게 object로 작성
+        var sendObj = {"username": email};
+        
+        // ajax로 전송 및 결과 받아서 처리
+        $.ajax({
+            url: "emailCheck",
+            type: "get",
+            data: sendObj,
+            success: function(res) {
+                if (res == "ok") {
+                    alert("사용 가능한 이메일입니다.");
+                    ck = true;
+                } else {
+                    alert("중복된 이메일입니다.");
+                    ck = false;
+                    $("#username").val(""); // 아이디 지우기
+                    $("#username").focus();
+                }
+            },
+            error: function(err) {
+                console.log(err);
+                ck = false;
+            }
+        });
+    }
+    
+    function check() {
+        // id 중복체크 여부 확인
+        if (ck == false) {
+            alert("이메일 중복 확인을 해주세요.");
+            return false;
+        }
+        
+        // form 태그의 내용 가져오기
+        var jfrm = document.jForm;
+        
+        for (var i = 0; i < jfrm.length - 1; i++) {
+            if (jfrm[i].value == "" || jfrm[i] == null) {
+                alert(jfrm[i].title + " 입력!");
+                jfrm[i].focus();
+                return false;
+            }
+        }
+        
+        return true;
+    }
+</script>
+</html>

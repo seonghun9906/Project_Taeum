@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<script src="js/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<script th:inline="javascript">
+	$(function() {
+		var m = /*[[${msg}]]*/null;
+		if (m !== null) {
+			alert(m);
+		}
+	});
+</script>
+<th:block th:insert="~{fragments :: header}" />
+</head>
+<body>
+	<section>
+		<fieldset class="standBy-profile">
+			<div class="driverInfo-1">
+				<div class="driver-image">
+					<img alt="프로필 이미지" src="">
+				</div>
+				<p>
+					<span th:text="${driverName.M_NAME}"></span>
+				</p>
+			</div>
+			<div th:each="apply : ${applyList}">
+				<p>
+					탑승자명 <span th:text="${apply.A_NAME}"></span> <br> 승차지 <span
+						th:text="${apply.A_STARTADRESS}"></span> <br> 하차지 <span
+						th:text="${apply.A_ENDADRESS}"></span> <br> 픽업 시간 <span
+						th:text="${apply.A_DATE}"></span> <br>
+				</p>
+				<hr>
+			</div>
+			<input type="button" id="moveToRouteCheck" value="수락">
+			</fieldset>
+
+		<fieldset class="standBy-detail">
+			<div>
+				<h1>운행 상세 정보</h1>
+				<div th:each="apply : ${applyList}">
+					<p>
+						탑승자명 <span th:text="${apply.A_NAME}"></span> <br> 탑승자 전화번호 <span
+							th:text="${apply.A_PHONE}"></span> <br> 보호자 전화번호 <span
+							th:text="${apply.M_PHONE}"></span> <br> 특이사항 <span
+							th:text="${apply.A_CONTENTS}"></span>
+					</p>
+				</div>
+			</div>
+		</fieldset>
+	</section>
+</body>
+<script>
+    $("#moveToRouteCheck").click(function(){
+        location.href = `/routeCheck`;
+    });
+</script>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<script src="js/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<script
+	src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+<th:block th:insert="~{fragments::header}" />
+</head>
+<body>
+	<section>
+		<div class="content">
+			<form th:action="@{driverUpdateProc}" class="write-form"
+				method="post" enctype="multipart/form-data">
+				<h2 class="login-header">기사 정보수정</h2>
+				<!-- 작성자(로그인 한 id), 제목, 내용, 파일  -->
+				<div class="apply-content">
+					<input type="hidden" name="M_ID"
+						th:value="${#authentication.principal != null ? #authentication.principal.M_ID : ''}">
+					성함:<input class="write-input" name="M_NAME" id="M_NAME"
+						th:value="${#authentication.principal != null ? #authentication.principal.M_NAME : ''}">
+					연락처:<input class="write-input" name="M_PHONE" id="M_PHONE"
+						th:value="${#authentication.principal != null ? #authentication.principal.M_PHONE : ''}">
+					차량번호:<input type="text" class="write-input" id="DR_CARNUM"
+						name="DR_CARNUM" placeholder="차량번호" th:value="${driver.DR_CARNUM}">
+					담당지역:<select id="DR_AREA" name="DR_AREA" class="write-input"
+						th:value="${driver.DR_AREA}">
+						<option value="">담당지역 선택</option>
+						<option value="서구">서구</option>
+						<option value="동구">동구</option>
+						<option value="계양구">계양구</option>
+						<option value="부평구">부평구</option>
+						<option value="남동구">남동구</option>
+						<option value="미추홀구">미추홀구</option>
+						<option value="연수구">연수구</option>
+					</select> <br> 프로필사진
+					<div class="filebox">
+						<!-- 새로운 파일 첨부 -->
+						<label for="file">업로드</label> <input type="file" id="file"
+							name="files" multiple> 
+							<input type="text"
+							class="upload-name" id="file" th:value="${driverImage}" readonly>
+					</div>
+				</div>
+
+				<div class="btn-area">
+					<input type="submit" class="btn-write" value="저장"> <input
+						type="button" class="btn-write" value="뒤로가기" id="backbtn">
+					<input type="button" class="btn-write" value="퇴사" id="cleanbtn">
+				</div>
+			</form>
+		</div>
+	</section>
+	<th:block th:insert="~{fragments::footer}" />
+</body>
+<script th:inline="javascript">
+window.onload = function() {
+    
+    var nList = /*[[${nList}]]*/ null;
+
+      //redCircle 이미지 요소 가져오기
+      var redCircle = document.getElementById('redCircle');
+
+      // nList 값이 존재하면 redCircle 이미지 표시
+      if (nList && nList.length > 0) {
+          redCircle.style.display = 'inline'; // redCircle 이미지 표시
+      } else {
+          redCircle.style.display = 'none'; // redCircle 이미지 숨김
+      }
+};
+
+	//파일명 처리용 함수
+	$("#file").on("change", function() {
+		//파일 선택창에서 업로드할 파일을 선택한 다음
+		//'열기' 버튼을 누르면 change 이벤트가 발생.
+		//console.log($("#file"));
+		let files = $("#file")[0].files;
+		console.log(files);
+
+		let fileName = "";//출력할 문장 저장 변수
+
+		if (files.length > 1) {
+			fileName = `${files[0].name} 외 ${files.length - 1}개`;
+		} else if (files.length == 1) {
+			fileName = files[0].name;
+		} else {
+			fileName = "파일선택";
+		}
+		$(".upload-name").val(fileName);
+	});
+
+	$("#backbtn").click(function() {
+		let url = "driverModify";
+
+		location.href = url;
+	});
+
+	// 출발지 우편번호 찾기 팝업 호출 함수
+	function sample6_execDaumPostcode() {
+		new daum.Postcode(
+				{
+					oncomplete : function(data) {
+						var addr = ''; // 주소 변수
+						var extraAddr = ''; // 참고항목 변수
+
+						// 도로명 주소일 경우 참고항목을 조합
+						if (data.userSelectedType === 'R') {
+							if (data.bname !== ''
+									&& /[동|로|가]$/g.test(data.bname)) {
+								extraAddr += data.bname;
+							}
+							if (data.buildingName !== ''
+									&& data.apartment === 'Y') {
+								extraAddr += (extraAddr !== '' ? ', '
+										+ data.buildingName : data.buildingName);
+							}
+							if (extraAddr !== '') {
+								extraAddr = ' (' + extraAddr + ')';
+							}
+							document.getElementById("A_STARTRADRESS").value = extraAddr;
+						} else {
+							document.getElementById("A_STARTADRESS").value = '';
+						}
+
+						// 우편번호와 주소 정보를 해당 필드에 넣음
+						document.getElementById('A_STARTADRESSNUM').value = data.zonecode;
+						document.getElementById("DR_ADDRESS").value = data.roadAddress;
+						document.getElementById("DR_CARNUM").focus(); // 상세주소 필드로 커서 이동
+
+					}
+				}).open();
+	}
+
+	$(function() {
+		let msg = /*[[${msg}]]*/null;
+		if (msg != null) {
+			alert(msg);
+		}
+	});
+
+	// Thymeleaf에서 받아온 driver.DR_AREA 값
+	var receivedValue = /*[[${driver.DR_AREA}]]*/null;
+	console.log("Received value:", receivedValue);
+
+	var selectElement = document.getElementById("DR_AREA");
+	for (var i = 0; i < selectElement.options.length; i++) {
+		if (selectElement.options[i].value === receivedValue) {
+			selectElement.options[i].selected = true;
+			console.log("Option selected:", selectElement.options[i].value);
+			break;
+		}
+	}
+
+	var DR_ID = /*[[${driver.DR_ID}]]*/ null;
+
+	document.getElementById('cleanbtn').addEventListener('click', function() {
+	    files = null;
+	    // 성함과 연락처 입력 필드의 값을 변경
+	    document.getElementById('M_NAME').value = '드라이버' + DR_ID;
+	    document.getElementById('M_PHONE').value = 'null';
+	 
+
+	     console.log('file = ' + document.getElementById('file').value);
+	     console.log('upload-name = ' + document.querySelector('.upload-name').value);
+	     
+	     var memberID = DR_ID + 1;
+	     console.log("asdasdsad = " + memberID);
+	     var imageNum = $('.upload-name').val();
+	     console.log(imageNum);
+	     
+	     // 확인 다이얼로그 표시
+	     var confirmResult = confirm("정말 퇴사하시겠습니까?");
+	     
+	     // 확인을 눌렀을 때
+	     if (confirmResult) {
+	     $.ajax({
+             url: 'deleteDriverImage', // 컨트롤러의 URL
+             method: 'POST',
+             data: {
+                 M_ID : memberID,
+                 imageNum : imageNum
+                 
+             }, // 선택된 값 전송
+             success: function(response) {
+                 // 성공적으로 서버로부터 응답을 받았을 때 수행할 작업
+             document.getElementById('file').value = null;
+             document.querySelector('.upload-name').value = null; // 프로필 사진 초기화 
+               
+               
+             alert("퇴사 완료 저장 버튼을 눌러주세요.")
+  
+             },
+             error: function(xhr, status, error) {
+                 // Ajax 요청이 실패했을 때 수행할 작업
+                 alert('AJAX 요청이 실패하였습니다:');
+                
+             }
+         });
+	     }
+
+	});
+	  // 버튼 클릭 시 확인 다이얼로그 띄우고 Ajax 요청 실행
+	     document.getElementById('cleanbtn').addEventListener('click', function() {
+	         confirmDelete();
+	     });
+
+	 window.onload = function() {
+		 var img = /*[[${driverImage}]]*/ null;
+	      console.log(img);
+	    };
+	 
+
+	
+</script>
+</html>
+
+
+
+
+

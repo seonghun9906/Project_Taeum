@@ -1,0 +1,943 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+  <head>
+  <title>운행정보확인</title>
+
+<link
+  href="https://getbootstrap.com/docs/5.3/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+  integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+  crossorigin="anonymous">
+<script
+  src="https://getbootstrap.com/docs/5.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+  crossorigin="anonymous"></script>
+<link
+  href="https://getbootstrap.com/docs/5.3/examples/sidebars/sidebars.css"
+  rel="stylesheet">
+ <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=9c49835d1348562532a0d8a13f2f7bf3&libraries=clusterer"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+<!-- 부트스트랩 CSS 링크 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
+<!-- Bootstrap Icons CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+ <link rel="stylesheet" href="css/style.css">
+ <th:block th:insert="~{fragments :: header}" />
+</head>
+<body>
+<main class="d-flex flex-nowrap">
+  <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-body-tertiary border border-r-1" style="width: 380px;">
+    <div class="d-flex align-items-center flex-shrink-0 p-3 link-body-emphasis text-decoration-none">
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="#4ae39c" viewBox="0 0 256 256" class="me-2">
+        <path d="M232,128A104,104,0,1,1,128,24,104.13,104.13,0,0,1,232,128Z" fill="#3F7EFC"></path>
+      </svg>
+      <span class="fs-5 fw-semibold">배차 현황</span>
+      <button type="button" class="btn btn-success" id="backbtn"
+      style="margin-left: 135px; top: 15px; z-index: 1030; background-color: #3F7EFC;">뒤로가기</button>
+    </div>
+          <div
+      class="d-flex flex-wrap py-3 px-2 gap-3 align-items-center justify-content-center border-bottom">
+    <div class="border-start border-2 h-50"></div>
+      <div class="d-flex flex-column align-items-center">
+        <div id="DATE-TIME"> </div>
+        <div class="fw-light" style="font-size: 0.8rem">DATE
+        <button type="button" class="btn btn-secondary p-0" id="datePickerButton" >
+        <i class="bi bi-calendar"></i>
+        </button>
+        </div>
+      </div>
+      <div class="border-start border-2 h-50"></div>
+      <div class="d-flex flex-column align-items-center">
+        <div id="Count">0</div>
+        <div class="fw-light" style="font-size: 0.8rem">접 수 현 황</div>
+      </div>
+      <div class="border-start border-2 h-50"></div>
+        </div>
+      <div
+      class="d-flex flex-wrap py-3 px-2 gap-3 align-items-center justify-content-center border-bottom">
+      <div class="d-flex flex-column align-items-center">
+        <div id="totalVisit">0곳</div>
+        <div class="fw-light" style="font-size: .75rem">경유지</div>
+      </div>
+      <div class="border-start border-2 h-50"></div>
+      <div class="d-flex flex-column align-items-center">
+        <div id="totalDistance">0km</div>
+        <div class="fw-light" style="font-size: .75rem">이동거리</div>
+      </div>
+      <div class="border-start border-2 h-50"></div>
+      <div class="d-flex flex-column align-items-center">
+        <div id="totalDuration">0분</div>
+        <div class="fw-light" style="font-size: .75rem">이동시간</div>
+      </div>
+    </div>
+<div class="list-group scrollarea px-3 flex-grow-1">
+
+    <div th:each="nodeList, index : ${rideNodeList}" class="abc" style="z-index:9998" >
+    <!-- 각 rideNodeList 요소에 대한 div -->
+    <a href="#" class="list-group-item list-group-item-action py-3 lh-sm mt-3 border rounded-2 customClass" onclick="toggleOnOff(this, true, ${index.index})">
+        <div class="d-flex w-100 align-items-center justify-content-start mb-1">
+            <!-- 각 요소 안에 있는 노드들의 정보를 출력 -->
+            <div th:each="node : ${nodeList}" class="def">
+                <input type="hidden" class="badge text-bg-secondary" th:value="${node.node_id}" id="node_id">
+                <th:block th:if="${node.kind == 2}">
+                    <input type="hidden" class="node_mid" th:value="${node.m_ID}" id="nodeMId">
+                </th:block>
+            </div>
+        </div>
+        <span type="text">[[${index.index+1}]]차 배정</span><span type="text" id="result"></span></span><span type="text" id="onOff" style="display:none;">off</span>
+         <!-- style="display: none; visibility: hidden; -->
+    </a>
+    <!-- 인덱스 번호를 버튼 텍스트에 추가 -->
+    <div class="btn-area">
+        <button type="button" class="btn btn-primary btn-sm accept-btn" id="accept-btn" 
+                data-node-list="${nodeList}" 
+                onclick="handleAccept(this)">
+            수락
+        </button>
+        <button type="button" class="btn btn-danger btn-sm reject-btn" id="reject-btn" 
+                data-node-list="${NodeList}" 
+                onclick="handleReject(this)">
+            거절
+        </button>
+    </div>
+</div>
+</div>
+
+    <div class="d-flex align-items-center justify-content-center p-3">
+      <button type="button" class="btn btn-dark w-100" onclick="goVrp()">경로 최적화</button>
+    </div>
+  </div>
+
+
+  <div id="map" class="w-100" style="z-index: 0;">
+  <div class="w-100 h-100 fixed-top justify-content-center align-items-center bg-opacity-10 bg-success" id="spin" style="display: none;">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  </div>
+
+</main>
+</body>
+<script th:inline="javascript">
+var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+mapOption = {
+   center: new kakao.maps.LatLng(37.4388938204128, 126.675113024566), // 지도의 중심좌표(인천일보아카데미)
+   level: 8 // 지도의 확대 레벨
+};
+var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+// 페이지가 로드될 때 부트스트랩 달력 초기화 ------------------------------------
+window.onload = function () {
+    $('#datePickerButton').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayHighlight: true
+    }).on('changeDate', function (e) {
+        const selectedDate = e.format();
+        document.getElementById('DATE-TIME').innerText = selectedDate;
+    });
+    displayCurrentDate();
+ 
+    var nList = /*[[${nList}]]*/ null;
+
+    //redCircle 이미지 요소 가져오기
+    var redCircle = document.getElementById('redCircle');
+
+    // nList 값이 존재하면 redCircle 이미지 표시
+    if (nList && nList.length > 0) {
+        redCircle.style.display = 'inline'; // redCircle 이미지 표시
+    } else {
+        redCircle.style.display = 'none'; // redCircle 이미지 숨김
+    }
+    
+   
+};
+
+//페이지가 로드될 때 기본값으로 현재 날짜를 표시하는 함수
+function displayCurrentDate() {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+
+    const dateString = `${year}-${month}-${day}`;
+    console.log("dateString = " + dateString);
+    document.getElementById('DATE-TIME').innerText = dateString;
+    
+    /* updateCount(dateString); */
+}
+
+// 달력에서 날짜가 변경될 때 호출되는 함수
+function onDateChange(e) {
+
+    const selectedDate = e.format();
+    console.log("변경 = " + selectedDate);
+    document.getElementById('DATE-TIME').innerText = selectedDate;
+    
+    var nodeList = /*[[${nodeList}]]*/ null; // nodeList를 적절한 선택자로 가져옵니다.
+   	var count = 0;
+
+ 	  console.log(selectedDate);
+    	 nodeList.forEach(function(node) {
+    		 var [a_date, newDate] = node.a_DATE.split(' ');
+    			console.log("a_date = " + a_date);
+    	        console.log("count = " + count);
+    	        console.log(selectedDate)
+    		 if(a_date === selectedDate){
+    			 
+    	        count++;
+    	    } else {
+    	    	count = 0;
+    	    }
+       //  console.log(nodeList.length);
+       
+     });
+         document.getElementById('Count').innerText = count; // #Count 업데이트
+}
+
+// 페이지가 로드될 때 이벤트 핸들러를 설정하여 초기화
+$(document).ready(function() {
+    $('#datePickerButton').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayHighlight: true
+    }).on('changeDate', onDateChange); // 달력의 날짜가 변경될 때 이벤트 핸들러 등록
+});
+
+// -----------------------------------------------------------------
+//#Count 업데이트 함수
+     function updateCount(selectedDate) {
+     var nodeList = /*[[${nodeList}]]*/ null; // nodeList를 적절한 선택자로 가져옵니다.
+   	var count = 0;
+
+ 	  console.log(selectedDate);
+    	 nodeList.forEach(function(node) {
+    		 var [a_date, newDate] = node.a_DATE.split(' ');
+    			console.log(a_date);
+    		 if(a_date === selectedDate){
+    			 
+    	        count++;
+    	    } else {
+    	    	count = 0;
+    	    }
+       //  console.log(nodeList.length);
+         document.getElementById('Count').innerText = count; // #Count 업데이트
+       
+     });
+}
+
+
+function spinOn() {
+     $("#spin").addClass("d-flex");
+   }
+   function spinOff() {
+     $("#spin").removeClass("d-flex");
+   }
+  
+   
+
+   // 각 innerList에 대한 클릭 이벤트를 추가합니다.
+// 모든 리스트 요소를 선택합니다.
+var innerLists = document.querySelectorAll('.abc');
+ //  console.log(innerLists);
+
+var isActives = new Array();
+
+// 각 리스트 요소에 대한 클릭 이벤트를 추가합니다.
+innerLists.forEach(function(innerList, index) {
+   
+
+    // 각 리스트의 활성화 상태를 추적하기 위한 변수를 추가합니다.
+    //var isActive = false;
+    isActives[index] = false;
+
+    
+    innerList.addEventListener('click', function() {
+        // 현재 리스트의 활성화 상태를 변경합니다.
+
+        isActives[index] = !isActives[index];
+   
+
+
+        // 클릭한 리스트가 이미 활성화된 경우, 이벤트를 무시하고 비활성화합니다.
+        //if (isActive) {
+        if (isActives[index]) {
+            // 현재 리스트를 활성화합니다.
+            toggleOnOff(innerList, true, index);
+        } else {
+            // 현재 리스트를 비활성화합니다.
+            toggleOnOff(innerList, false, index);
+        }
+
+        // 다른 리스트들을 모두 비활성화합니다.
+        innerLists.forEach(function(list, i) {
+            //if (list !== innerList) {
+            if(index != i){
+                // 다른 리스트들을 강제로 비활성화합니다.
+                toggleOnOff(list, false, i);
+                
+            }
+        });
+        
+    });
+});
+
+// 문서를 로드할 때, 모든 리스트의 활성화를 해제합니다.
+document.addEventListener('DOMContentLoaded', function() {
+    innerLists.forEach(function(list) {
+        list.classList.remove('active');
+    });
+});
+
+var POLYLINE = null; // 빨간색 선
+var POLYLINE_WHITE = null; // 하얀색 선
+var linePath = [];
+var pathIndex = 0; // 경로를 그리는데 사용될 인덱스
+var delay = 50;
+
+function drawPath(pathPointList) {
+  if (pathPointList.length > 0) {
+    linePath = [];
+    for (var point of pathPointList) {
+      linePath.push(new kakao.maps.LatLng(point.y, point.x));
+    }
+    // 초기화된 경로로 기존의 선을 제거합니다.
+    if (POLYLINE) POLYLINE.setMap(null);
+    if (POLYLINE_WHITE) POLYLINE_WHITE.setMap(null);
+    pathIndex = 0;
+    // 빨간색 선을 그립니다.
+    
+    drawRedLine();
+    
+  }
+}
+
+function drawRedLine() {
+  // 빨간색 선을 그립니다.
+  POLYLINE = new kakao.maps.Polyline({
+    path: linePath,
+    strokeWeight: 5, // 선의 두께입니다.
+    strokeColor: '#3F7EFC', // 선의 색깔입니다.
+    strokeOpacity: 1, // 선의 불투명도입니다.
+    strokeStyle: 'solid' // 선의 스타일입니다.
+  });
+  // 지도에 빨간색 선을 표시합니다.
+  POLYLINE.setMap(map);
+  // 하얀색 선을 그리기 시작합니다.
+  drawWhiteLine();
+}
+
+function drawWhiteLine() {
+	  var startIndex = pathIndex;
+	  var endIndex = Math.min(pathIndex + 5, linePath.length);
+	  var segment = linePath.slice(startIndex, endIndex);
+
+	  // 이전에 그렸던 하얀색 선이 있다면 삭제합니다.
+	  if (POLYLINE_WHITE) POLYLINE_WHITE.setMap(null);
+
+	  // 하얀색 선을 그립니다.
+	  POLYLINE_WHITE = new kakao.maps.Polyline({
+	    path: segment,
+	    strokeWeight: 3,
+	    strokeColor: '#FFFFFF',
+	    strokeOpacity: 1,
+	    strokeStyle: 'solid'
+	  });
+
+	  // 지도에 하얀색 선을 표시합니다.
+	  POLYLINE_WHITE.setMap(map);
+
+	  // 인덱스를 증가시킵니다.
+	  pathIndex += 1;
+
+	  // 만약 경로가 남아있다면 재귀적으로 다음 선을 그리거나, 최초지점으로 돌아갑니다.
+	  if (endIndex < linePath.length) {
+	    setTimeout(drawWhiteLine, delay);
+	  } else {
+	    pathIndex = 0;
+	    setTimeout(drawWhiteLine, 1000);
+	  }
+	}
+
+
+function toggleOnOff(innerList, isActive, idx) {
+    var nodeList = innerList.querySelectorAll('.def'); 
+    var onOffElement = innerList.querySelector('#onOff');
+    var abcDivs = document.querySelectorAll('.customClass');
+    var dateTime = document.getElementById('DATE-TIME').innerText;
+    
+    if (isActive) {
+        onOffElement.textContent = 'on';
+        abcDivs[idx].style.backgroundColor = '#3F7EFC'; // 해당 인덱스의 div 색상 변경
+
+        nodeList.forEach(function(nodeElement) {
+            var nodeId = nodeElement.querySelector('.badge.text-bg-secondary').value;
+            var node = findNodeById(nodeId); 
+            var datePart = node.a_DATE.split(" ")[0];
+            var status = node.status;
+            console.log(status);
+            
+            if(datePart === dateTime) {
+                var markerPosition = new kakao.maps.LatLng(node.y, node.x);
+                var marker = new kakao.maps.Marker({
+                    position: markerPosition
+                });
+                marker.setMap(map);
+                markers[node.node_id] = marker;
+                NODE_MAP[node.node_id] = node;
+            }
+        });
+        isActives[idx] = true;
+        innerList.classList.add('active');
+    } else {
+        onOffElement.textContent = 'off';
+        abcDivs[idx].style.backgroundColor = ''; // 해당 인덱스의 div 색상 초기화
+
+        nodeList.forEach(function(nodeElement) {
+            var nodeId = nodeElement.querySelector('.badge.text-bg-secondary').value;
+            var marker = markers[nodeId];
+            if (marker) {
+                marker.setMap(null);
+                delete markers[nodeId];
+                delete NODE_MAP[nodeId];
+                if(POLYLINE){
+                    POLYLINE.setMap(null);
+                }
+            }
+        });
+        isActives[idx] = false;
+        innerList.classList.remove('active');
+    }
+}
+   
+// 클릭된 리스트의 노드들을 맵에 나타내는 함수
+   function showNodesOnMap(nodeId) {
+    //  removeAllNodesFromMap();
+       // 각 노드에 대해 반복하여 맵에 마커를 추가합니다.
+       for (const node of nodeList) {
+    //      console.log("addMarker = "+ node);
+           addMarker(node);
+       }
+   }
+
+   // 맵에서 모든 노드를 제거하는 함수
+   function removeAllNodesFromMap() {
+       // markers 객체에 저장된 모든 마커를 제거합니다.
+       for (const nodeId in markers) {
+           markers[nodeId].setMap(null); // 마커를 지도에서 제거
+           delete markers[nodeId]; // markers 객체에서 제거
+       }
+       // NODE_MAP 객체에 저장된 모든 노드를 제거합니다.
+       NODE_MAP = {};
+   }
+
+   // 마커를 토글하는 함수
+   function toggleMarker(node) {
+    
+       var marker = markers[node.node_id]; // 해당 노드에 대한 마커를 가져옵니다.
+       if (marker) {
+           // 이미 마커가 추가되었으면 삭제합니다.
+           marker.setMap(null);
+           delete markers[node.node_id]; // 마커를 markers 객체에서 제거합니다.
+           delete NODE_MAP[node.node_id];
+       } else {
+          for(const nodeList of rideNodeList)
+           // 마커가 추가되지 않았으면 추가합니다.
+           addMarker(node);
+           NODE_MAP[node.node_id] = node;
+       }
+   }
+ 
+   var nodeList = /*[[${nodeList}]]*/ null;
+    console.log("nodeList = ", nodeList);  
+
+    function findNodeById(nodeId) {
+        for (const node of nodeList) {
+     	
+            if (parseInt(node.node_id) === parseInt(nodeId)) {
+         	  
+                return node; // 해당하는 ID를 가진 노드를 찾으면 반환합니다.
+            }
+        }
+        return null; // 해당하는 ID를 가진 노드가 없으면 null을 반환합니다.
+    }
+   
+// 해당하는 노드의 마커를 추가하는 함수
+   function addMarker(node) {
+       var markerPosition = new kakao.maps.LatLng(node.y, node.x); // 해당하는 노드의 위치
+       var marker;
+
+       if (node.kind === 2) {
+           // node.kind가 2인 경우 이미지를 사용하여 마커 생성
+           var markerImage = new kakao.maps.MarkerImage(
+               'images/pngwing.png', // 사용할 이미지의 URL을 넣어주세요
+               new kakao.maps.Size(27, 42),
+               {offset: new kakao.maps.Point(15, 40)}
+           );
+
+           marker = new kakao.maps.Marker({
+               position: markerPosition,
+               image: markerImage // 사용자 지정 이미지를 마커에 설정
+           });
+       } else {
+           // node.kind가 1이거나 다른 경우 카카오 지도에서 제공하는 디폴트 마커 사용
+           marker = new kakao.maps.Marker({
+               position: markerPosition
+           });
+       }
+
+       marker.setMap(map); // 마커를 지도에 추가합니다.
+       markers[node.node_id] = marker; // 마커를 markers 객체에 저장합니다.
+       NODE_MAP[node.node_id] = node;
+   }
+   
+   // 해당하는 노드의 마커를 제거하는 함수
+   function removeMarker(node) {
+      
+       var marker = markers[node.node_id]; // 해당 노드에 대한 마커를 가져옵니다.
+       //console.log("marker = " + marker);
+       if (marker) {
+           // 마커가 추가되었으면 삭제합니다.
+       //    console.log("통과")
+           marker.setMap(null);
+           delete markers[node.node_id]; // 마커를 markers 객체에서 제거합니다.
+           delete NODE_MAP[node.node_id];
+           
+       }
+   }
+   
+// 클릭된 항목의 'm_id'와 같은 kind가 2인 노드의 마커를 추가하는 함수
+   function addConnectedMarker(nodeMId, nodeId) {
+ 
+	   selectedMIds.push(nodeId); // 배열에 선택한 m_id를 추가합니다.
+       updateMIdInput(selectedMIds.join(', ')); 
+         
+       
+        
+       // nodeList에서 'm_id'가 nodeMId인 노드들을 찾습니다.
+       const connectedNodes = nodeList.filter(node => parseInt(node.m_ID) === parseInt(nodeMId) && parseInt(node.kind) === 2
+    		   &&  parseInt(node.node_id) === parseInt(nodeId) + 1);
+       // 찾은 노드들의 마커를 추가합니다.
+       connectedNodes.forEach(node => {
+           console.log("addConnectedMarker 통과 = " + node);
+           addMarker(node); 
+           NODE_MAP[node.node_id] = node;
+           
+           selectedMIds.push(node.node_id); // 배열에 선택한 m_id를 추가합니다.
+           updateMIdInput(selectedMIds.join(', ')); 
+       });
+   }
+   
+   function addConnectedNodeId(nodeMId) {}
+   
+// 클릭된 항목의 'm_id'와 같은 kind가 2인 노드의 마커를 제거하는 함수
+   function removeConnectedMarker(nodeMId, nodeId) {
+       // nodeList에서 'm_id'가 nodeMId이고 kind가 2인 노드들을 찾습니다.
+       const connectedNodes = nodeList.filter(node => parseInt(node.m_ID) === parseInt(nodeMId)  && parseInt(node.kind) === 2
+    		   && parseInt(node.node_id) === parseInt(nodeId) + 1);
+       const id = connectedNodes.map(node => node.node_id); // 선택된 노드들의 id 배열
+       // 찾은 노드들의 마커를 제거합니다.
+       id.forEach(nodeId => {
+           const node = findNodeById(nodeId); // 노드 ID로 노드를 가져옵니다.
+           if (node) {
+               removeMarker(node); // 해당 노드의 마커를 제거합니다.
+           }
+       });
+
+       // 선택된 노드들의 ID를 selectedMIds 배열에서 제거합니다.
+       id.forEach(nodeId => {
+           const index = selectedMIds.indexOf(nodeId);
+           console.log("index = " + index);
+           if (index !== -1) {
+               selectedMIds.splice(index, 1);
+           }
+       });
+
+       // 인풋 태그에 선택된 m_id들을 업데이트합니다.
+       updateMIdInput(selectedMIds.join(', '));
+   }
+  
+   // 각 노드에 대한 마커를 저장하기 위한 객체
+   var markers = {};
+
+
+//ajax 응답 받은 데이터로 화면에 그리기.
+const NODE_MAP = {};
+const MARKER_MAP = {};
+const INFO_MAP = {};
+function displayData(data) {
+ 
+    // 서버에서 받은 데이터 추출
+    const totalDistance = data.totalDistance;// 전체이동거리(미터)
+  const totalDuration = data.totalDuration;// 전체이동시간(초)
+  const totalPathPointList = data.totalPathPointList;// // 전체이동경로
+  const nodeList = data.nodeList;// // 방문지목록
+  $("#totalVisit").text(nodeList.length + "곳");
+  $("#totalDistance").text((totalDistance / 1000).toFixed(2) + "km");
+  $("#totalDuration").text(secondsToHoursMinutes(totalDuration));
+    // nodeList를 사용하여 HTML에 목록 추가
+    let html = '';
+    let count = 0;
+    for (const node of nodeList) {
+        // 각 노드에 대한 HTML 코드 생성
+       
+    }
+
+    // 생성된 HTML을 페이지의 목록 요소에 추가
+    $('#bechaList').html(html);
+    drawPath(totalPathPointList);
+    
+} 
+
+function secondsToHoursMinutes(seconds) {
+     // 시간으로 변환
+     const hours = Math.floor(seconds / 3600);
+     // 남은 분 계산
+     const minutes = Math.floor((seconds % 3600) / 60);
+     // 시간과 분을 "00" 형식으로 변환. 시간이 0일 경우, 시간 표시 생략
+     const formattedHours = hours > 0 ? `${hours.toString().padStart(2, '0')}시간 ` : '';
+     const formattedMinutes = minutes.toString().padStart(2, '0');
+     return `${formattedHours}${formattedMinutes}분`;
+   }
+   
+   
+   
+    function drawMarker(node, bounds) {
+     const position = new kakao.maps.LatLng(node.y, node.x);
+     bounds.extend(position);
+     // 배열의 좌표들이 잘 보이게 마커를 지도에 추가합니다
+     const marker = new kakao.maps.Marker({position: position, clickable: true});
+     marker.setMap(map);
+     const name = node.name;
+     const phone = node.phone;
+     // 인포윈도우를 생성합니다
+     const infowindow = new kakao.maps.InfoWindow({
+       content: '<div style="padding:5px;">' + name + '<br/>' + phone + '</div>',
+       removable: true
+     });
+    
+     MARKER_MAP[node.node_id] = marker; //바깥에서 인식이 가능하도록 전역변수 설정
+     INFO_MAP[node.node_id] = infowindow; 
+     
+     // 마커에 클릭이벤트를 등록합니다
+     kakao.maps.event.addListener(marker, 'click', function () {
+       infowindow.open(map, marker);
+     });
+   }
+
+
+
+ 
+
+    //지도의 중심을 이동싴미는 기능
+    function panTo(nodeId) {
+       clearInfoWindow();
+       const node = NODE_MAP[nodeId];
+       INFO_MAP[nodeId].open(map, MARKER_MAP[nodeId]);
+       // 이동할 위도 경도 위치를 생성합니다
+       var moveLatLon = new kakao.maps.LatLng(node.y, node.x);
+       // 지도 중심을 부드럽게 이동시킵니다
+       // 만약 이동할 거리가 지도 화면보다 크면 부드러운 효과 없이 이동합니다
+       map.panTo(moveLatLon);
+     }
+
+     function clearInfoWindow() {
+       for(const nodeId in INFO_MAP) {
+         INFO_MAP[nodeId].close();
+       }
+     }
+
+     
+     function goVrp() {
+        
+       spinOn();
+          $.ajax({
+              url: '/vrp',
+              type: 'post', // 관련정보들이 주소창에 나올 이유는 없으니 post로 돌림.
+              contentType: "application/json", //data(body)에 json 을 담으려면 둘이 셑트임(data,contenType)
+              data: 
+                JSON.stringify(Object.values(NODE_MAP)), // 컨트롤러에서 받은 data값이 JOSN 형식으로 Ajox 돌림.
+              success: function (result) { // 에러코드 200일땐 성공
+                  if (result.code != 'SUCC') {
+                      alert("경로 최적화에 실패 하였습니다.");
+                      spinOff();
+                      return;
+                  }
+                  spinOff();
+                  const data = result.data;
+                  displayData(data);
+                
+              },
+              error: function () { // 에러코드가 200이 아닌 경우.
+                  spinOff();
+                  alert("경로 최적화에 실패 하였습니다.");
+              }
+          });
+      }
+     
+   
+
+
+     // 노드 리스트를 반복하면서 각 노드에 대해 마커를 생성하고 markers 배열에 추가합니다.
+     for (const node of nodeList) {
+        
+         addMarker(node);
+     }
+     
+  // 클러스터러를 생성합니다.
+     var clusterer = new kakao.maps.MarkerClusterer({
+         map: map, // 지도 객체
+         averageCenter: false, // 클러스터 마커의 중심 위치를 평균화할지 여부
+         minLevel: 8 // 클러스터러가 동작할 최소 지도 레벨
+     });
+
+     // 클러스터러에 마커들을 추가합니다.
+     clusterer.addMarkers(markers);
+     
+  // 해당하는 노드의 마커를 추가하는 함수
+     function addMarker(node) {
+         var markerPosition = new kakao.maps.LatLng(node.y, node.x); // 해당하는 노드의 위치
+         var marker = new kakao.maps.Marker({
+             position: markerPosition
+         });
+         markers.push(marker);
+         updateCount();// 마커를 markers 배열에 추가합니다.
+     }
+     
+     
+
+     /*<![CDATA[*/
+     function handleAccept(button) {
+    	 const resultSpan = button.closest('.abc').querySelector('#result');
+         // 기본 동작 막기
+         event.preventDefault();
+         event.stopPropagation();
+		
+         console.log("수락클릭");
+         // JSON.stringify() 함수를 사용하여 객체를 JSON 문자열로 변환
+         var nodeListAcc = JSON.stringify([[${nodeList}]]); 
+         console.log(nodeListAcc);
+		
+         // 클릭된 버튼의 부모 요소인 btn-area를 찾아서 그 안에서 수락 버튼의 인덱스 값을 가져옴
+         var index = $(button).closest('.btn-area').index('.btn-area') + 1;
+         console.log('클릭된 버튼의 인덱스:', index);
+         resultSpan.textContent = '(수락)';
+         var buttonDiv = button.parentNode;
+         button.remove();
+
+         // 거절 버튼도 제거
+         var rejectButton = buttonDiv.querySelector('.reject-btn');
+         if (rejectButton) {
+             rejectButton.remove();
+         }
+         
+         // JSON.parse() 함수로 JSON 문자열을 객체로 변환
+         var nodeAtIndex = JSON.parse(nodeListAcc);
+         var nodeListRe = [];
+         // nodeListAcc를 순회하면서 필요한 데이터를 추출하여 nodeListRe에 추가
+         nodeAtIndex.forEach(function(node) {
+             if (node.cycle === index) {
+                 nodeListRe.push({
+                     node_id: node.node_id,
+                     cycle: node.cycle,
+                     a_DATE: node.a_DATE,
+                     address: node.address,
+                     d_ID: node.d_ID
+                 });
+             }
+         });
+
+         console.log('전송 데이터:', nodeListRe);
+
+         // JSON 데이터로 전송
+         $.ajax({
+             url: '/acceptNode',
+             type: 'POST',
+             contentType: 'application/json',
+             data: JSON.stringify(nodeListRe), // JSON 데이터로 변환하여 전송
+             success: function(response) {
+                 console.log('서버 응답:', response);
+             },
+             error: function(xhr, status, error) {
+                 console.error('에러:', error);
+             }
+         });
+         button.remove();
+
+         return false;
+     }
+     /*]]>*/
+    
+     
+
+     // 거절 버튼을 클릭할 때 실행되는 함수
+function handleReject(button) {
+	const resultSpan = button.closest('.abc').querySelector('#result');
+	 resultSpan.textContent = '(거절)';
+    event.preventDefault();
+    event.stopPropagation();
+    console.log("거절클릭");
+
+    // 클릭된 버튼의 부모 요소인 btn-area를 찾아서 그 안에서 거절 버튼의 인덱스 값을 가져옴
+    var index = $(button).closest('.btn-area').index('.btn-area') + 1;
+    console.log('클릭된 버튼의 인덱스:', index);
+
+    // JSON.stringify() 함수를 사용하여 객체를 JSON 문자열로 변환
+    var nodeListAcc = JSON.stringify([[${nodeList}]]); 
+    console.log(nodeListAcc);
+
+    // JSON.parse() 함수로 JSON 문자열을 객체로 변환
+    var nodeAtIndex = JSON.parse(nodeListAcc);
+    var nodeListRe = [];
+    // nodeListAcc를 순회하면서 필요한 데이터를 추출하여 nodeListRe에 추가
+    nodeAtIndex.forEach(function(node) {
+        if (node.cycle === index) {
+            nodeListRe.push({
+                node_id: node.node_id,
+                cycle: node.cycle,
+                a_DATE: node.a_DATE,
+                address: node.address,
+                d_ID: node.d_ID
+            });
+        }
+    });
+
+    // 버튼이 속한 div 요소 가져오기
+    var buttonDiv = button.parentNode;
+
+    // 이미 생성된 input 태그 가져오기
+    var existingInput = buttonDiv.querySelector('input[type="text"]');
+    if (existingInput) {
+        // 이미 input 태그가 있는 경우, 해당 태그를 제거
+        existingInput.remove();
+
+        // 생성된 전송 버튼도 제거
+        var submitButton = buttonDiv.querySelector('.reject-submit');
+        if (submitButton) {
+            submitButton.remove();
+        }
+    } else {
+        // input 태그가 없는 경우, 새로 생성하여 추가
+        createRejectInput(buttonDiv, nodeListRe, index); // 수정된 부분
+    }
+    var buttonDiv = button.parentNode;
+
+    // 버튼 제거
+    button.remove();
+
+    // 수락 버튼도 제거
+    var acceptButton = buttonDiv.querySelector('.accept-btn');
+    if (acceptButton) {
+        acceptButton.remove();
+    }
+    return false;
+}
+
+// 거절 사유 input 생성 함수
+function createRejectInput(buttonDiv, nodeListRe, index) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = '거절사유'; // 플레이스홀더 설정
+    input.classList.add('form-control');
+    input.classList.add('mt-2'); // 여백 추가
+    input.id = 'rejectReasonInput'; // ID 추가
+
+    // 생성된 input 태그를 div에 추가
+    buttonDiv.appendChild(input);
+
+    // 생성된 input 태그에 자동으로 포커스 설정
+    input.focus();
+
+    var submitButton = document.createElement('button');
+    submitButton.type = 'button';
+    submitButton.innerText = '전송';
+    submitButton.classList.add('btn', 'btn-primary', 'mt-2', 'reject-submit'); // 버튼 스타일 추가
+
+    // 전송 버튼에 이벤트 리스너 추가
+    submitButton.addEventListener('click', function() {
+        var input = document.getElementById('rejectReasonInput');
+        submitRejectReason(input, nodeListRe, index); // 수정된 부분
+        input.remove(); // input 제거
+        submitButton.remove(); // 버튼 제거
+    });
+    // 생성된 submitButton을 div에 추가
+    buttonDiv.appendChild(submitButton);
+    return false;
+}
+
+//전송 버튼을 클릭할 때 실행되는 함수
+function submitRejectReason(input, nodeListRe, index) {
+	
+
+    event.preventDefault();
+    event.stopPropagation();
+    console.log("전송클릭");
+
+    var rejectReason = input.value.trim(); // 입력된 값 가져오기
+    console.log('거절 사유:', rejectReason);
+    console.log('전송 데이터:', nodeListRe); // nodeListRe 출력
+    console.log('전송 데이터의 인덱스:', index); // index 출력
+    
+    var dataToSend = [{
+        d_REASON: rejectReason,
+        d_ID: nodeListRe.length > 0 ? nodeListRe[0].d_ID : null
+    }];
+
+    $.ajax({
+        url: '/deniedNode',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(dataToSend),
+        success: function(response) {
+            console.log('서버 응답:', response);
+        },
+        error: function(xhr, status, error) {
+            console.error('에러:', error);
+        }
+    });
+    
+    return false;
+}
+
+//#Count 업데이트 함수
+function updateCount() {
+    var count = nodeList.length; // nodeList의 길이가 접수 현황의 개수입니다.
+  //  console.log(nodeList.length);
+    document.getElementById('Count').innerText = count; // #Count 업데이트
+}
+
+
+//마커를 업데이트하는 함수
+function updateMarkers() {
+    // 이전 마커를 모두 제거합니다.
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(null);
+    }
+    
+    // 새로운 마커를 추가합니다.
+    markers = [];
+    for (const node of nodeList) {
+        addMarker(node);
+    }
+    
+    // 클러스터러를 다시 설정합니다.
+    clusterer.clear();
+    clusterer.addMarkers(markers);
+}
+
+$("#backbtn").click(function() {
+	let url = "driverModify";
+
+	location.href = url;
+});
+     
+</script>

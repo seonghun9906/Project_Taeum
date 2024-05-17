@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taeum</title>
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script th:inline="javascript">
+        $(function () {
+            let m = [[${msg}]];
+            if(m != null){
+                alert(m);
+            }
+        })
+    </script>
+    <th:block th:insert="~{fragments::header}" />
+</head>
+<body>
+<section>
+    <div class="content">
+        <form th:action="@{ApplyProc}" class="write-form" method="post">
+            <h2 class="login-header">서비스 신청하기</h2>
+            <!-- 작성자(로그인 한 id), 제목, 내용, 파일  -->
+            <div class="apply-content">
+                <input type="hidden" name="M_ID" th:value="${#authentication.principal != null ? #authentication.principal.M_ID : ''}">
+                신청자 성함:<input class="write-input" name="M_NAME" th:value="${#authentication.principal != null ? #authentication.principal.M_NAME : ''}" readonly>
+                신청자 연락처<input class="write-input" name="M_PHONE" th:value="${#authentication.principal != null ? #authentication.principal.M_PHONE : ''}" readonly>
+                탑승자 성함:<input type="text" class="write-input" name="A_NAME" autofocus placeholder="탑승자 성함" required>
+                탑승자 연락처:<input type="text" class="write-input" name="A_PHONE" autofocus placeholder="탑승자 연락처" required>
+                탑승지 정보:
+                <div class="find-adress-group">
+                    <input type="text" class="write-input" id="A_STARTADRESSNUM" name="A_STARTADRESSNUM" placeholder="우편번호">
+                    <input type="button" class="write-input addressbtn" id="find-adress" onclick="execDaumPostcode()" value="출발지 우편번호 찾기">
+                </div>
+                <br>
+                <input type="text" class="write-input" id="A_STARTADRESS" name="A_STARTADRESS" placeholder="출발지 주소"><br>
+                <input type="text" class="write-input" id="A_STARTDADRESS" name="A_STARTDADRESS" placeholder="행정구" readonly>
+                <input type="text" class="write-input" id="A_STARTRADRESS" name="A_STARTRADRESS" placeholder="참고항목">
+                하차지 정보:
+                <div class="find-adress-group">
+                    <input type="text" class="write-input" id="A_ENDADRESSNUM" name="A_ENDADRESSNUM" placeholder="우편번호">
+                    <input type="button" class="write-input addressbtn" id="find-adress" onclick="sample6_execDaumPostcode()" value="하차지 우편번호 찾기">
+                </div>
+                <br>
+                <input type="text" class="write-input" id="A_ENDADRESS" name="A_ENDADRESS" placeholder="하차지 주소"><br>
+                <input type="text" class="write-input" id="A_ENDDADRESS" name="A_ENDDADRESS" placeholder="행정구" readonly>
+                <input type="text" class="write-input" id="A_ENDRADRESS" name="A_ENDRADRESS" placeholder="참고항목">
+                탑승일 <input type="datetime-local" class="write-input" name="A_DATE">
+                <textarea rows="15" name="A_CONTENTS" placeholder="특이사항을 적어주세요." class="write-input ta"></textarea>
+            </div>
+
+            <div class="btn-area">
+                <button class="btn-write" onclick="return checkAddresses()">신청하기</button>
+                <input type="button" class="btn-write" value="뒤로가기" id="backbtn">
+            </div>
+        </form>
+    </div>
+</section>
+<th:block th:insert="~{fragments::footer}" />
+<script th:inline="javascript">
+    $("#backbtn").click(function(){
+        let url = "/";
+        location.href = url;
+    });
+
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                var addr = '';
+                var extraAddr = '';
+                var Daddr = '';
+
+                if (data.userSelectedType === 'R') {
+                    addr = data.roadAddress;
+                } else {
+                    addr = data.jibunAddress;
+                }
+
+                if(data.userSelectedType === 'R'){
+                    if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                        extraAddr += data.bname;
+                        if(data.sigungu !== ""){
+                            Daddr += data.sigungu;
+                        }
+                    }
+                    if(data.buildingName !== '' && data.apartment === 'Y'){
+                        extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                    }
+                    if(extraAddr !== ''){
+                        extraAddr = ' (' + extraAddr + ')';
+                    }
+                    document.getElementById("A_STARTRADRESS").value = extraAddr;
+                    document.getElementById("A_STARTDADRESS").value = Daddr;
+
+                } else {
+                    document.getElementById("A_STARTADRESS").value = '';
+                }
+
+                document.getElementById('A_STARTADRESSNUM').value = data.zonecode;
+                document.getElementById("A_STARTADRESS").value = addr;
+                document.getElementById("A_STARTDADRESS").focus();
+            }
+        }).open();
+    }
+
+    function sample6_execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                var addr = '';
+                var extraAddr = '';
+                var Daddr = '';
+
+                if (data.userSelectedType === 'R') {
+                    addr = data.roadAddress;
+                } else {
+                    addr = data.jibunAddress;
+                }
+
+                if(data.userSelectedType === 'R'){
+                    if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                        extraAddr += data.bname;
+                        if(data.sigungu !== ""){
+                            Daddr += data.sigungu;
+                        }
+                    }
+                    if(data.buildingName !== '' && data.apartment === 'Y'){
+                        extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                    }
+                    if(extraAddr !== ''){
+                        extraAddr = ' (' + extraAddr + ')';
+                    }
+                    document.getElementById("A_ENDRADRESS").value = extraAddr;
+                    document.getElementById("A_ENDDADRESS").value = Daddr;
+
+                } else {
+                    document.getElementById("A_ENDADRESS").value = '';
+                }
+
+                document.getElementById('A_ENDADRESSNUM').value = data.zonecode;
+                document.getElementById("A_ENDADRESS").value = addr;
+                document.getElementById("A_ENDDADRESS").focus();
+            }
+        }).open();
+    }
+
+    function checkAddresses() {
+        var startAddress = document.getElementById("A_STARTDADRESS").value;
+        var endAddress = document.getElementById("A_ENDDADRESS").value;
+
+        if (startAddress === endAddress) {
+            document.getElementById("yourFormId").submit();
+        } else {
+            alert("동일 행정구가 아닙니다.");
+            return false;
+        }
+
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = (now.getMonth() + 1).toString().padStart(2, '0');
+        var day = now.getDate().toString().padStart(2, '0');
+        var hours = now.getHours().toString().padStart(2, '0');
+        var minutes = now.getMinutes().toString().padStart(2, '0');
+        var dateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+        document.getElementById("datetime").min = dateTime;
+    }
+</script>
+</body>
+</html>
+

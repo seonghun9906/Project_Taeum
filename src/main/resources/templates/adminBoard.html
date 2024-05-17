@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>문의내역</title>
+<link rel="stylesheet" href="css/style.css">
+ <th:block th:insert="~{fragments :: header}" />
+   <style>
+        .bar {
+            fill: #3F7EFC;
+             opacity: 0; /* 초기에는 투명하게 설정 */
+        }
+
+        .bar-text {
+            fill: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+<div style="display: flex; justify-content: space-between; margin-left : 7%;  margin-right : 7%; "  >
+  <!-- 접수 현황 -->
+  <div style=  "margin-top: 3%; font-size: 16px; border: 5px solid gray; padding-right: 20px; border-radius: 15px;">
+      <h2 style=" margin-top:5%; margin-left: 80px;">3개월 총 접수 현황 : [[${TotalNodeCount} /2 ]] 건</h2>
+    <svg id="graph" width="800" height="250" style= "margin-bottom: -3%; border-radius: 15px;" >
+
+    </svg>
+   <div id="graph-text" style="display: flex; margin-left:17%; margin-bottom:3%; width:800px"></div>
+
+   <!-- 간격 조절 -->
+  <div style="width: 350px;"></div>
+
+   </div>
+   <!-- 배차 현황 -->
+   <div style=  "margin-top: 3%; font-size: 16px; border: 5px solid gray; padding-right: 20px; border-radius: 15px;">
+     <h2 style=" margin-top:5%; margin-left: 80px;">3개월 총 배차 현황 : [[${TotalBechaCount}/2]] 건</h2>
+    <svg id="graph1" width="800" height="250" style= "margin-bottom: -3%; " >
+    </svg>
+   <div id="graph-text1" style="display: flex; margin-left:17%; margin-bottom:3%;  width:800px;"></div>
+</div>
+   </div>
+   
+   
+   
+   
+<div style="display: flex; justify-content: space-between; margin-left : 7%;  margin-right : 7%; margin-bottom : 2%;"  >
+  <!-- 승인 현황 -->
+  <div style=  "margin-top: 2%; font-size: 16px; border: 5px solid gray; padding-right: 20px; border-radius: 15px;">
+      <h2 style=" margin-top:5%; margin-left: 80px;">3개월 총 승인 현황 : [[${totalDispatchListSize1}]] 건</h2>
+    <svg id="graph2" width="800" height="250" style= "margin-bottom: -3%; border-radius: 15px;" >
+
+    </svg>
+   <div id="graph-text2" style="display: flex; margin-left:17%; margin-bottom:3%; width:800px"></div>
+
+   <!-- 간격 조절 -->
+  <div style="width: 350px;"></div>
+
+   </div>
+   <!-- 거절 현황 -->
+   <div style=  "margin-top: 2%; font-size: 16px; border: 5px solid gray; padding-right: 20px; border-radius: 15px;">
+     <h2 style=" margin-top:5%; margin-left: 80px;">3개월 총 거절 현황 : [[${totalDispatchListSize2}]] 건</h2>
+    <svg id="graph3" width="800" height="250" style= "margin-bottom: -3%; " >
+    </svg>
+   <div id="graph-text3" style="display: flex; margin-left:17%; margin-bottom:3%;  width:800px;"></div>
+</div>
+   </div>
+</body>
+ <script th:inline="javascript" src="https://d3js.org/d3.v7.min.js"></script>
+    <script th:inline="javascript">
+        // 데이터 예시 (21개, 37개, 22개)
+         var nodeListsize = [[${nodeListsize}]];
+        var pmnsize = [[${previousMonthNodeListsize}]];
+        var tmansize = [[${twoMonthsAgoNodeListsize}]]; 
+        var current = [[${currentDateStr}]];
+        var previous = [[${previousMonth}]];
+        var two = [[${twoMonthsAgo}]];
+      
+        
+        
+       
+        
+        const data = [tmansize, pmnsize, nodeListsize];
+        const months = [two, previous, current];
+        
+
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+        	 var total = tmansize+pmnsize+nodeListsize;
+            const svg = d3.select("#graph"),
+                margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                width = +svg.attr("width") - margin.left - margin.right,
+                height = +svg.attr("height") - margin.top - margin.bottom;
+
+            const x = d3.scaleBand()
+                .range([0, width])
+                .padding(0.1);
+            const y = d3.scaleLinear()
+                .range([height, 0]);
+
+            const g = svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            x.domain(data.map((d, i) => i + 1));
+            y.domain([0, 100]); // 최대값을 100으로 설정
+
+            // 막대 애니메이션 효과 추가
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", (d, i) => x(i + 1))
+                .attr("y", height) // 초기 위치를 아래로 설정
+                .attr("width", x.bandwidth())
+                .transition()
+                .duration(1000) // 애니메이션 지속 시간 (밀리초)
+                .delay((d, i) => i * 100) // 각 막대마다 약간의 지연을 줌
+                .attr("y", d => height - (d / total * 100) * height / 100) // 비율에 따라 높이 조정
+                .attr("height", d => (d / total) * 100 * height / 100)
+                .style("opacity", 1); // 애니메이션이 끝나면 막대를 불투명하게 설정
+
+             // 텍스트 추가
+                g.selectAll(".bar-text")
+                    .data(data)
+                    .enter().append("text")
+                    .attr("class", "bar-text")
+                    .attr("x", (d, i) => x(i + 1) + x.bandwidth() / 2)
+                    .attr("y", d => height - (d / total * 100) * height / 100 + 20) // 막대 위로부터 14px 아래로 조정
+                    .attr("text-anchor", "middle")
+                    .text((d,i) => {
+                    	 if (i === 0) return tmansize/2 + '건';
+                         if (i === 1) return pmnsize/2 + '건';
+                         if (i === 2) return nodeListsize/2 + '건';
+                    })
+                    .style("opacity", 0) // 초기에 투명하게 설정
+                    .transition()
+                    .duration(1000) // 애니메이션 지속 시간 (밀리초)
+                    .delay((d, i) => i * 100) // 각 텍스트에 약간의 지연을 줌
+                    .style("opacity", 1); // 애니메이션이 끝나면 투명도를 1로 설정
+                    
+                    
+                // 그래프 아래에 추가적인 텍스트 추가
+                d3.select("#graph-text")
+               .selectAll("div")
+            .data(months)
+            .enter().append("div")
+            .style("margin-right", "22.5%") // 왼쪽 정렬 추가
+            .style("font-size", "16px") // 글자 크기 조정
+            .style("font-weight", "bold") // 글자 굵기 조정
+
+                    .text(d => d);
+                            
+                });
+      
+        var dispathNow = [[${dispathNowListsize}]];
+        var dispathPrev = [[${dispathPrevListsize}]];
+        var dispathTwo = [[${dispathTwoListsize}]];
+        
+       
+        
+        const data1 = [dispathTwo, dispathPrev, dispathNow];
+        const months1 = [two, previous, current];
+        
+        
+        document.addEventListener("DOMContentLoaded", function() {
+        	var total = dispathTwo+ dispathPrev+ dispathNow;
+            const svg = d3.select("#graph1"),
+                margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                width = +svg.attr("width") - margin.left - margin.right,
+                height = +svg.attr("height") - margin.top - margin.bottom;
+
+            const x = d3.scaleBand()
+                .range([0, width])
+                .padding(0.1);
+            const y = d3.scaleLinear()
+                .range([height, 0]);
+
+            const g = svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            x.domain(data.map((d, i) => i + 1));
+            y.domain([0, 100]); // 최대값을 100으로 설정
+
+            // 막대 애니메이션 효과 추가
+            g.selectAll(".bar")
+                .data(data1)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", (d, i) => x(i + 1))
+                .attr("y", height) // 초기 위치를 아래로 설정
+                .attr("width", x.bandwidth())
+                .transition()
+                .duration(1000) // 애니메이션 지속 시간 (밀리초)
+                .delay((d, i) => i * 100) // 각 막대마다 약간의 지연을 줌
+                .attr("y", d => height - (d / total * 100) * height / 100) // 비율에 따라 높이 조정
+                .attr("height", d => (d / total) * 100 * height / 100)
+                .style("opacity", 1); // 애니메이션이 끝나면 막대를 불투명하게 설정
+
+             // 텍스트 추가
+                g.selectAll(".bar-text1")
+                    .data(data1)
+                    .enter().append("text")
+                    .attr("class", "bar-text")
+                    .attr("x", (d, i) => x(i + 1) + x.bandwidth() / 2)
+                    .attr("y", d => height - (d / total * 100) * height / 100 + 20) // 막대 위로부터 14px 아래로 조정
+                    .attr("text-anchor", "middle")
+                     .text((d,i) => {
+                       if (i === 0) return dispathTwo/2 + '건';
+                         if (i === 1) return dispathPrev/2 + '건';
+                         if (i === 2) return dispathNow/2 + '건';
+                    })
+
+                    .style("opacity", 0) // 초기에 투명하게 설정
+                    .transition()
+                    .duration(1000) // 애니메이션 지속 시간 (밀리초)
+                    .delay((d, i) => i * 100) // 각 텍스트에 약간의 지연을 줌
+                    .style("opacity", 1); // 애니메이션이 끝나면 투명도를 1로 설정
+                    
+                // 그래프 아래에 추가적인 텍스트 추가
+                d3.select("#graph-text1")
+               .selectAll("div")
+            .data(months1)
+            .enter().append("div")
+              .style("margin-right", "22.5%") // 왼쪽 정렬 추가
+    .style("font-size", "16px") // 글자 크기 조정
+    .style("font-weight", "bold") // 글자 굵기 조정
+
+            .text(d => d);
+                    
+        });
+        
+        var Now2 = [[${dispatchNowListSize1}]];
+        var Prev2 = [[${dispatchPrevListSize1}]];
+        var Two2 = [[${dispatchTwoListSize1}]];
+        
+       
+        
+        const data2 = [Two2, Prev2, Now2];
+        const months2 = [two, previous, current];
+        
+        
+        document.addEventListener("DOMContentLoaded", function() {
+        	var total = Two2 + Prev2 + Now2
+            const svg = d3.select("#graph2"),
+                margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                width = +svg.attr("width") - margin.left - margin.right,
+                height = +svg.attr("height") - margin.top - margin.bottom;
+
+            const x = d3.scaleBand()
+                .range([0, width])
+                .padding(0.1);
+            const y = d3.scaleLinear()
+                .range([height, 0]);
+
+            const g = svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            x.domain(data.map((d, i) => i + 1));
+            y.domain([0, 100]); // 최대값을 100으로 설정
+
+            // 막대 애니메이션 효과 추가
+            g.selectAll(".bar")
+                .data(data2)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", (d, i) => x(i + 1))
+                .attr("y", height) // 초기 위치를 아래로 설정
+                .attr("width", x.bandwidth())
+                .transition()
+                .duration(1000) // 애니메이션 지속 시간 (밀리초)
+                .delay((d, i) => i * 100) // 각 막대마다 약간의 지연을 줌
+                .attr("y", d => height - (d / total * 100) * height / 100) // 비율에 따라 높이 조정
+                .attr("height", d => (d / total) * 100 * height / 100)
+                .style("opacity", 1); // 애니메이션이 끝나면 막대를 불투명하게 설정
+
+             // 텍스트 추가
+                g.selectAll(".bar-text2")
+                    .data(data2)
+                    .enter().append("text")
+                    .attr("class", "bar-text")
+                    .attr("x", (d, i) => x(i + 1) + x.bandwidth() / 2)
+                    .attr("y", d => height - (d / total * 100) * height / 100 + 20) // 막대 위로부터 14px 아래로 조정
+                    .attr("text-anchor", "middle")
+                     .text((d,i) => {
+                       if (i === 0) return Two2 + '건';
+                         if (i === 1) return Prev2 + '건';
+                         if (i === 2) return Now2 + '건';
+                    })
+
+                    .style("opacity", 0) // 초기에 투명하게 설정
+                    .transition()
+                    .duration(1000) // 애니메이션 지속 시간 (밀리초)
+                    .delay((d, i) => i * 100) // 각 텍스트에 약간의 지연을 줌
+                    .style("opacity", 1); // 애니메이션이 끝나면 투명도를 1로 설정
+                    
+                // 그래프 아래에 추가적인 텍스트 추가
+                d3.select("#graph-text2")
+               .selectAll("div")
+            .data(months1)
+            .enter().append("div")
+              .style("margin-right", "22.5%") // 왼쪽 정렬 추가
+    .style("font-size", "16px") // 글자 크기 조정
+    .style("font-weight", "bold") // 글자 굵기 조정
+
+            .text(d => d);
+                    
+        });
+        
+        var Now3 = [[${dispatchNowListSize2}]];
+        var Prev3 = [[${dispatchPrevListSize2}]];
+        var Two3 = [[${dispatchTwoListSize2}]];
+        
+       
+        
+        const data3 = [Two3, Prev3, Now3];
+        const months3 = [two, previous, current];
+        
+        
+        document.addEventListener("DOMContentLoaded", function() {
+        	  var total = Two3 +  Prev3 +  Now3;
+            const svg = d3.select("#graph3"),
+                margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                width = +svg.attr("width") - margin.left - margin.right,
+                height = +svg.attr("height") - margin.top - margin.bottom;
+
+            const x = d3.scaleBand()
+                .range([0, width])
+                .padding(0.1);
+            const y = d3.scaleLinear()
+                .range([height, 0]);
+
+            const g = svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            x.domain(data.map((d, i) => i + 1));
+            y.domain([0, 100]); // 최대값을 100으로 설정
+
+            // 막대 애니메이션 효과 추가
+            g.selectAll(".bar")
+                .data(data3)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", (d, i) => x(i + 1))
+                .attr("y", height) // 초기 위치를 아래로 설정
+                .attr("width", x.bandwidth())
+                .transition()
+                .duration(1000) // 애니메이션 지속 시간 (밀리초)
+                .delay((d, i) => i * 100) // 각 막대마다 약간의 지연을 줌
+                .attr("y", d => height - (d / total * 100) * height / 100) // 비율에 따라 높이 조정
+                .attr("height", d => (d / total) * 100 * height / 100)
+                .style("opacity", 1); // 애니메이션이 끝나면 막대를 불투명하게 설정
+
+             // 텍스트 추가
+                g.selectAll(".bar-text3")
+                    .data(data3)
+                    .enter().append("text")
+                    .attr("class", "bar-text")
+                    .attr("x", (d, i) => x(i + 1) + x.bandwidth() / 2)
+                    .attr("y", d => height - (d / total * 100) * height / 100 + 20) // 막대 위로부터 14px 아래로 조정
+                    .attr("text-anchor", "middle")
+                     .text((d,i) => {
+                       if (i === 0) return Two3 + '건';
+                         if (i === 1) return Prev3 + '건';
+                         if (i === 2) return Now3 + '건';
+                    })
+
+                    .style("opacity", 0) // 초기에 투명하게 설정
+                    .transition()
+                    .duration(1000) // 애니메이션 지속 시간 (밀리초)
+                    .delay((d, i) => i * 100) // 각 텍스트에 약간의 지연을 줌
+                    .style("opacity", 1); // 애니메이션이 끝나면 투명도를 1로 설정
+                    
+                // 그래프 아래에 추가적인 텍스트 추가
+                d3.select("#graph-text3")
+               .selectAll("div")
+            .data(months1)
+            .enter().append("div")
+              .style("margin-right", "22.5%") // 왼쪽 정렬 추가
+    .style("font-size", "16px") // 글자 크기 조정
+    .style("font-weight", "bold") // 글자 굵기 조정
+
+            .text(d => d);
+                    
+        });
+        
+    </script>
+</html>

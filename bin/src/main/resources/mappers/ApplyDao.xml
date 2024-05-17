@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.icia.Taeumproject.Dao.ApplyDao">
+
+
+	<insert id="insertApply" parameterType="ApplyDto"
+		useGeneratedKeys="true" keyProperty="A_ID">
+		INSERT INTO applytbl
+		VALUES(#{M_NAME},#{M_PHONE},#{A_ID},#{A_NAME},#{A_PHONE},#{A_STARTADRESSNUM},
+		#{A_STARTADRESS},#{A_STARTDADRESS},#{A_STARTRADRESS},#{A_ENDADRESSNUM},
+		#{A_ENDADRESS},#{A_ENDDADRESS},#{A_ENDRADRESS},#{A_DATE},DEFAULT,#{A_CONTENTS},
+		#{M_ID},#{STATUS})
+	</insert>
+
+
+	<select id="sDuplicateApply" resultType="boolean"
+		parameterType="java.util.Map">
+		SELECT COUNT(*) > 0
+		FROM applytbl
+		WHERE M_ID = #{m_ID}
+		AND
+		A_DATE = #{formattedDate}
+		AND
+		A_NAME = #{A_NAME}
+	</select>
+
+	<select id="getApplyList" parameterType="int"
+		resultType="ApplyDto">
+		SELECT * FROM applytbl
+		WHERE m_id = #{m_id}
+		ORDER BY A_LOCALDATE DESC
+		LIMIT #{size} OFFSET #{offset}
+	</select>
+
+
+	<delete id="cancelApply" parameterType="int">
+		DELETE FROM applytbl
+		WHERE A_ID = #{applyId}
+	</delete>
+
+
+	<select id="selectAllMember" resultType="ApplyDto">
+		SELECT * FROM applytbl
+	</select>
+
+	<select id="selectAplCnt" parameterType="SearchDto"
+		resultType="Integer">
+		SELECT COUNT(*) FROM applytbl
+	</select>
+	<delete id="withDrawal" parameterType="int">
+		DELETE FROM applytbl
+		WHERE M_ID = #{m_id}
+	</delete>
+
+
+
+</mapper>

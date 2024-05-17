@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<script src="js/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<script
+	src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+<th:block th:insert="~{fragments::header}" />
+</head>
+<body>
+	<section>
+		<div class="content">
+			<form th:action="@{driverJoinProc}" class="write-form" method="post"
+				enctype="multipart/form-data">
+				<h2 class="login-header">기사 등록</h2>
+				<!-- 작성자(로그인 한 id), 제목, 내용, 파일  -->
+				<div class="apply-content">
+					<input type="hidden" name="M_ID"
+						th:value="${#authentication.principal != null ? #authentication.principal.M_ID : ''}">
+					성함:<input class="write-input" name="M_NAME"
+						th:value="${#authentication.principal != null ? #authentication.principal.M_NAME : ''}">
+					연락처:<input class="write-input" name="M_PHONE"
+						th:value="${#authentication.principal != null ? #authentication.principal.M_PHONE : ''}">
+					<br>
+					 차량번호:<input
+						type="text" class="write-input" id="DR_CARNUM" name="DR_CARNUM"
+						placeholder="차량번호" th:value="${DR_CARNUM}">
+					담당지역:<select id="DR_AREA" name="DR_AREA" class="write-input">
+						<option value="">담당지역 선택</option>
+						<option value="서구">서구</option>
+						<option value="동구">동구</option>
+						<option value="계양구">계양구</option>
+						<option value="부평구">부평구</option>
+						<option value="남동구">남동구</option>
+						<option value="미추홀구">미추홀구</option>
+						<option value="연수구">연수구</option>
+					</select> <br> 프로필사진
+					<div class="filebox">
+						<label for="file">업로드</label>
+						<input type="file" name="files" id="file" multiple>
+							<input type="text" class="upload-name" value="파일선택" readonly>
+					</div>
+
+
+				</div>
+
+				<div class="btn-area">
+					<input type="submit" class="btn-write" value="저장"> <input
+						type="button" class="btn-write" value="뒤로가기" id="backbtn">
+				</div>
+			</form>
+		</div>
+	</section>
+	<th:block th:insert="~{fragments::footer}" />
+</body>
+<script th:inline="javascript">
+	//파일명 처리용 함수
+	$("#file").on("change", function() {
+		//파일 선택창에서 업로드할 파일을 선택한 다음
+		//'열기' 버튼을 누르면 change 이벤트가 발생.
+		//console.log($("#file"));
+		let files = $("#file")[0].files;
+		console.log(files);
+
+		let fileName = "";//출력할 문장 저장 변수
+
+		if (files.length > 1) {
+			fileName = `${files[0].name} 외 ${files.length - 1}개`;
+		} else if (files.length == 1) {
+			fileName = files[0].name;
+		} else {
+			fileName = "파일선택";
+		}
+		$(".upload-name").val(fileName);
+	});
+
+	$("#backbtn").click(function() {
+		let url = "/";
+
+		location.href = url;
+	});
+
+	$(function() {
+		let msg = /*[[${msg}]]*/null;
+		if (msg != null) {
+			alert(msg);
+		}
+	});
+</script>
+</html>
+
+
+
+
+

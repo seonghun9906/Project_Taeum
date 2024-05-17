@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<!-- External libraries -->
+<script src="js/jquery-3.7.1.min.js"></script>
+<script
+	src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<!-- CSS styles -->
+<!--  <link rel="stylesheet" href="css/style.css"> -->
+<link rel="stylesheet" href="css/style.css">
+<!-- Include header fragment -->
+<th:block th:insert="~{fragments :: header}" />
+</head>
+<body>
+	<section>
+		<div class="a-content">
+			<!-- applyList가 비어 있는 경우 -->
+			<div th:if="${applyList.isEmpty()}">
+				<div class="apply-list-empty">신청 내역이 없습니다.</div>
+			</div>
+			<!-- applyList가 비어 있지 않은 경우 -->
+			<div th:unless="${applyList.isEmpty()}">
+				<!-- 사용자의 신청 내역을 순회하며 출력 -->
+				<div class="apply-list">
+					<div th:each="apply : ${applyList}" class="apply-item">
+						<div class="apply-detail">
+							<div class="apply-info">
+								신청자 이름: <span th:text="${apply.M_NAME}"></span>
+							</div>
+							<div class="apply-info">
+								탑승자 이름: <span th:text="${apply.A_NAME}"></span>
+							</div>
+							<div class="apply-info">
+								탑승 날짜: <span th:text="${apply.A_DATE}"></span>
+							</div>
+							<div class="apply-info">
+								탑승지: <span th:text="${apply.A_STARTADRESS}"></span>
+							</div>
+							<div class="apply-info">
+								하차지: <span th:text="${apply.A_ENDADRESS}"></span>
+							</div>
+							<div class="apply-info">
+								배차상태: <span
+									th:text="${apply.STATUS == 0 ? '배차 중' : (apply.STATUS == 1 ? '배차완료' : '배차취소')}"></span>
+							</div>
+							<!-- 취소 버튼 -->
+							<div th:if="${apply.STATUS == 0}" class="cancel-button">
+								<form action="/cancelApply" method="post">
+									<input type="hidden" name="A_Id" th:value="${apply.A_ID}" /> <input
+										type="hidden" name="M_Id" th:value="${apply.M_ID}" /> <input
+										type="hidden" name="A_Date" th:value="${apply.A_DATE}" />
+									<button type="submit" onclick="return confirm('정말로 취소하시겠습니까?')">취소</button>
+								</form>
+							</div>
+							<!-- 취소 버튼 end -->
+						</div>
+					</div> 
+					
+				</div>
+			</div>
+			<div class="paging" th:utext="${applyCount}">
+					</div>
+		</div>
+	</section>
+	<th:block th:insert="~{fragments :: footer}" />
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<!-- External libraries -->
+<script src="js/jquery-3.7.1.min.js"></script>
+<script
+	src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<!-- Bootstrap CSS -->
+
+<!-- CSS styles -->
+<link rel="stylesheet" href="css/style.css">
+<!-- Include header fragment -->
+<th:block th:insert="~{fragments :: header}" />
+</head>
+
+<body>
+	<div class="board-btn-box">
+	<a href="/boardWrite" class="board-btn-primary1"> 글쓰기</a>
+	<th:block sec:authorize="hasRole('USER') or isAnonymous()">
+	<a href="/" class="board-btn-primary1 backbtn">나가기</a>
+	</th:block>
+	<th:block sec:authorize="hasRole('ADMIN') or isAnonymous()">
+	<a href="/adminMain" class="board-btn-primary1 backbtn">나가기</a>
+	</th:block>
+	</div>
+	<h2 class="board-title">공지사항</h2>
+	<!-- applyList가 비어 있는 경우 -->
+	<div th:if="${boardList.isEmpty()}">
+		<!-- <div class="board-list-empty">공지 사항이 없습니다.</div>  -->
+	</div>
+	<div class="min-board">
+	<table class="board">
+		<thead class="b-thead">
+			<tr>
+				<th class="b-th">Name</th>
+				<th class="b-th">Title</th>
+				<th class="b-th">Contents</th>
+				<th class="b-th">Date</th>
+			</tr>
+		</thead>
+		<tbody class="b-tbody">
+			<tr th:each="board, iterStat : ${boardList}"
+				th:if="${board.role == 'ROLE_ADMIN' and iterStat.index < 4}">
+				<td class="b-td" th:text="${board.username}"></td>
+				<td class="b-td"><a
+					th:href="@{/boardDetail/{id}(id=${board.B_ID})}"
+					th:text="${board.B_TITLE}"
+					style="color: black; text-decoration: none; font-weight: bold;"></a></td>
+				<td class="b-td"><span
+					th:text="${#strings.length(board.B_CONTENTS) &gt; 12} ? ${#strings.substring(board.B_CONTENTS, 0, 12) + '...'} : ${board.B_CONTENTS}"></span>
+				</td>
+				<td class="b-td"><span
+					th:text="${#dates.format(board.B_DATE, 'yyyy-MM-dd HH:mm')}"></span></td>
+			</tr>
+		</tbody>
+	</table>
+	<h2 class="board-title">문의사항</h2>
+	<table class="board">
+		<thead class="b-thead">
+			<tr>
+				<th class="b-th">Name</th>
+				<th class="b-th">Title</th>
+				<th class="b-th">Contents</th>
+				<th class="b-th">Date</th>
+			</tr>
+		</thead>
+		<tbody class="b-tbody">
+			<tr th:each="board : ${boardList}"
+				th:if="${board.role == 'ROLE_USER'}">
+
+
+				<td class="b-td"><span
+					th:text="${board.username.substring(0,1)} + '*' + ${board.username.substring(2)}"></span>
+				</td>
+
+				<td class="b-td"><a
+					th:href="@{/boardDetail/{id}(id=${board.B_ID})}"
+					th:text="${board.B_TITLE}"
+					style="color: black; text-decoration: none; font-weight: bold;"></a></td>
+
+				<td class="b-td"><span
+					th:text="${#strings.length(board.B_CONTENTS) &gt; 12} ? ${#strings.substring(board.B_CONTENTS, 0, 12) + '...'} : ${board.B_CONTENTS}"></span>
+				</td>
+				<td class="b-td"><span
+					th:text="${#dates.format(board.B_DATE, 'yyyy-MM-dd HH:mm')}"></span>
+					<a href="" class="b-a"></a>
+			</tr>
+
+		</tbody>
+	</table>
+	</div>
+
+
+
+	<th:block th:insert="~{fragments::footer}" />
+
+	<script th:inline="javascript">
+		
+	</script>
+
+</body>
+</html>

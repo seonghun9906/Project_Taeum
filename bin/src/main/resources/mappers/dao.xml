@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.icia.Taeumproject.Dao.MainDao">
+
+  <insert id="insert" parameterType="Node">
+    INSERT INTO NodeTbl
+    VALUES (
+     null,#{Address},#{x},#{y},#{M_ID},null,#{kind},null,null,#{A_DATE},null,#{M_PHONE},#{M_NAME},#{A_NAME},#{A_CONTENTS} ,#{A_ID} 
+    )
+  </insert>
+  
+
+  <select id="selectList" resultType="Node">
+    select *, SQRT(POW(x - 126.675113, 2) + POW(y - 37.438893,2)) AS distance
+FROM NodeTbl ORDER BY distance ASC;
+  </select>
+  
+
+ <update id ="updateDelivery" parameterType="Node">
+    UPDATE NodeTbl SET DR_ID=#{DR_ID}, cycle=#{cycle}, status =#{status}, D_ID=#{D_ID} WHERE node_id=#{node_id}
+
+  </update>
+  
+    <select id="selectRideList" resultType="Node">
+    select * FROM NodeTbl WHERE DR_ID=#{ride} and status='4'
+  </select>
+  
+  <select id="selectLocaldate" resultType="Node">
+    
+    select * from nodetbl WHERE A_DATE LIKE CONCAT('%', #{A_DATE}, '%');
+ 
+  </select>
+  
+  <select id="selectDriverList" resultType="DriverDto">
+      <![CDATA[
+    select dtb.*, mtb.M_NAME, mtb.M_PHONE from drivertbl dtb, membertbl mtb where dtb.M_ID = mtb.M_ID and dtb.DR_AREA LIKE CONCAT('%', #{DR_AREA}, '%');
+  ]]>
+  </select>
+  
+   <select id="selectNodeArea" resultType="Node">
+  select * from nodetbl WHERE address LIKE CONCAT('%', #{address}, '%')AND A_DATE LIKE CONCAT('%', #{A_DATE}, '%');
+</select>
+
+
+<insert id="insertDispatch" parameterType="dispatchDto">
+    <!-- 데이터 삽입 -->
+    INSERT INTO dispatchtbl (D_SELECT, D_STATUS, DR_ID, D_DATE, cycle)
+    VALUES (#{D_SELECT}, #{D_STATUS}, #{DR_ID}, #{D_DATE}, #{cycle})
+    
+    <!-- 자동 생성된 키 값을 DTO의 D_ID 필드에 매핑하는 selectKey -->
+    <selectKey keyProperty="D_ID" order="AFTER" resultType="java.lang.Long">
+        SELECT LAST_INSERT_ID() AS D_ID
+    </selectKey>
+</insert>
+  
+  <select id="getDispatchList" resultType="dispatchDto">
+    SELECT D_ID FROM dispatchtbl WHERE LAST_INSERT_ID();
+  </select>
+
+  
+  <select id="GetDriverList" resultType="dispatchDto">
+    SELECT * FROM dispatchtbl WHERE DR_ID = #{DR_ID}
+  </select>
+  
+  <select id="getDispatch" resultType="dispatchDto">
+    select * from dispatchtbl WHERE D_SELECT LIKE CONCAT('%', #{date}, '%');
+  </select>
+  
+  
+  <select id="DRMTList" resultType="DrivermanagementDto">
+    select * from drivermanagement where DR_ID = #{dR_ID}
+  </select>
+  
+  <select id="getNodeList" parameterType="Integer" resultType="Node">
+        SELECT n.*
+        FROM NodeTbl n
+        JOIN applytbl a ON n.A_DATE = a.A_DATE
+        WHERE a.M_ID = #{M_ID}
+    </select>
+    
+    <delete id="cancelNode" parameterType="map">
+    	DELETE FROM NodeTbl
+    	WHERE M_Id = #{m_Id} AND A_Date = #{a_Date} AND A_NAME = #{A_NAME}
+	</delete>
+	
+	<select id="selectNodeListToday" resultType="Node">
+		select * from nodetbl where DR_ID=#{dR_ID} AND A_DATE LIKE CONCAT('%', #{formattedDate}, '%');
+	</select>
+
+	
+	<select id="getUpdateDelivery" resultType="dispatchDto">
+	 select * from dispatchtbl where D_DATE = #{selectedTime} AND DR_ID = #{ride}
+	</select>
+	
+	<delete id="deleteConfirm" >
+	 DELETE FROM dispatchtbl
+	 WHERE DR_ID =#{ride} and D_DATE = #{selectedTime} and cycle = #{i}
+	</delete>
+  
+  <update id="updateConfirm">
+  update dispatchtbl
+   set cycle = #{cycle} where DR_ID =#{ride} and D_DATE = #{selectedTime} and cycle = 0
+  </update>
+  
+
+	<!--  탈퇴 회원 노드 삭제 -->
+	 <delete id="withDrawal" parameterType="int">
+    	DELETE FROM NodeTbl
+    	WHERE M_ID = #{m_id} 
+	</delete>
+
+  
+</mapper>

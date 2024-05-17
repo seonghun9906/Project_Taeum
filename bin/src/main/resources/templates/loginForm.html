@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:sec="http://www.thymeleaf.org"
+xmlns:th="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taeum</title>
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script th:inline="javascript">
+        $(function () {
+            let m = /*[[${msg}]]*/ null;
+            if(m !== null && m !== ''){
+                alert(m);
+            }
+            
+            $("#pchange").click(function(){
+              location.href="authUser";
+            });
+        });
+    </script>
+    <th:block th:insert="~{fragments::header}" />
+</head>
+<body>
+<section>
+    <div class="content">
+      <div class="login-form-container">
+        <form action="/loginProc" method="post" class="login-form">
+            <h2 class="login-header">로그인</h2>
+            <div>
+            <input type="text" class="login-input" name="username"
+                   autofocus required placeholder="아이디">
+            </div>
+            <div>
+            <input type="password" class="login-input"
+                   name="password" required placeholder="비밀번호">
+             </div>
+             <div>
+            <input type="submit" class="login-btn" value="로그인">
+
+            <div class="findInfoH6">
+            <h6>가입하셨던 정보가 기억나지 않으시나요?</h6>
+            </div>
+            
+            <div class="findInfo">
+            <a href="findEmail">이메일</a>/<a href="authUser">비밀번호 찾기</a>
+            </div>
+            </div>
+        </form>        
+    </div>
+    </div>
+</section>
+<th:block th:insert="~{fragments::footer}" />
+</body>
+</html>

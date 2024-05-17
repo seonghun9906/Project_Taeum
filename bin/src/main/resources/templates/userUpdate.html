@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<!-- External libraries -->
+<script src="js/jquery-3.7.1.min.js"></script>
+<script
+  src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<!-- CSS styles -->
+<!--  <link rel="stylesheet" href="css/style.css"> -->
+<link rel="stylesheet" href="css/style.css">
+<!-- Include header fragment -->
+<th:block th:insert="~{fragments :: header}" />
+</head>
+
+<body>
+  <section>
+    <div class="content">
+      <form th:action="@{UserUpdateProc}" class="write-form" method="post"
+        enctype="multipart/form-data">
+        <h2 class="login-header">사용자 정보수정</h2>
+        <!-- 작성자(로그인 한 id), 제목, 내용, 파일  -->
+        <div class="apply-content">
+          <input type="hidden" name="M_ID"
+            th:value="${#authentication.principal != null ? #authentication.principal.M_ID : ''}">
+          이메일:<input class="write-input" name="username" id="username"
+            th:value="${#authentication.principal != null ? #authentication.principal.username : ''}"readonly>
+          성함:<input class="write-input" name="M_NAME" id="M_NAME"
+            th:value="${#authentication.principal != null ? #authentication.principal.M_NAME : ''}">
+          연락처:<input class="write-input" name="M_PHONE" id="M_PHONE"
+            th:value="${#authentication.principal != null ? #authentication.principal.M_PHONE : ''}">
+				
+       	</div><!-- apply-content End -->			
+
+        <div class="btn-area">
+          	<input type="submit" class="btn-write" value="저장">  
+          <input type="button" class="btn-write" value="뒤로가기" id="backbtn">
+      	</div> <!-- btn-area End -->
+      </form>
+      
+      
+      <!-- <form th:action="@{#}" class="withDrawal" method="post">
+     <input type="hidden" name="M_ID"
+				th:value="${#authentication.principal?.M_ID}"> 
+      	<span><input type="submit" class="btn-write-del" value="회원 탈퇴" onclick="return confirm('정말로 탈퇴하시겠습니까?')"></span>
+      </form> -->
+      <div class="withdrawalLink">
+      <a id="withdrawalLink"  th:href="@{withDrawal}">회원탈퇴</a>
+      </div>
+    </div><!-- content End -->
+  </section>
+	
+	
+  <th:block th:insert="~{fragments::footer}" />
+
+
+
+  <script th:inline="javascript">
+//링크 요소를 가져와서 클릭 이벤트를 추가합니다.
+  document.getElementById("withdrawalLink").addEventListener("click", function(event) {
+      // 기본 동작(링크 이동)을 막습니다.
+      event.preventDefault();
+
+      // 사용자에게 확인 대화 상자를 표시하고 결과를 확인합니다.
+      if (confirm("정말로 탈퇴하시겠습니까?")) {
+          // 사용자가 확인을 선택한 경우, 링크의 href 속성을 사용하여 탈퇴 페이지로 이동합니다.
+          window.location.href = event.target.href;
+      } else {
+          // 사용자가 취소를 선택한 경우 아무 동작도 하지 않습니다.
+          return false;
+      }
+  });
+
+    
+
+    $(function() {
+      let msg = /*[[${msg}]]*/null;
+      if (msg != null) {
+        alert(msg);
+      }
+    });
+
+    $("#backbtn").click(function() {
+      let url = "/";
+
+      location.href = url;
+    });
+
+    
+  </script>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+

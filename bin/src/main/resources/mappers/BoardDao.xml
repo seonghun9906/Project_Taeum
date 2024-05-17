@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.icia.Taeumproject.Dao.BoardDao">
+	 <!-- 게시글 -->
+	<insert id="insertBoard" parameterType="BoardDto">
+		 INSERT INTO boardtbl
+		  VALUES(#{B_ID},#{username},#{B_TITLE},#{B_CONTENTS},DEFAULT,#{M_ID},#{role})
+	</insert>
+	  <!-- 게시글 목록 가져오기 -->
+	 <select id="getBoardList" resultType="BoardDto">
+        SELECT * FROM boardtbl ORDER BY B_DATE DESC;
+    </select>
+    <!-- 해당 게시글 가져오기 -->
+    <select id="getBoardById" resultType="BoardDto">
+     	select *from boardtbl where B_ID=#{id}
+    </select>
+    <!-- 댓글 가져오기 -->
+    <select id="getComments" resultType="CommentDto">
+    	select *from commentTbl where B_ID=#{id}
+    </select>
+    <!-- 댓글  -->
+    <insert id="insertComment" parameterType="CommentDto">
+		 INSERT INTO commentTbl
+		  VALUES(#{C_ID},#{B_ID},#{C_CONTENTS},DEFAULT,#{M_ID})
+	</insert>
+	<!-- 댓글 삭제 -->
+	<delete id="cancelComment" parameterType="int" >
+        DELETE FROM commentTbl WHERE C_ID = #{c_ID}
+    </delete>
+    <!-- 게시글 삭제 -->
+    <delete id="cacelBoard" parameterType="int" >
+        DELETE FROM boardtbl WHERE B_ID = #{b_ID}
+    </delete>
+   	<!-- 게시글에 대한 모든 댓글 삭제 -->
+    <delete id="cancelCommentAll" parameterType="int" >
+        DELETE FROM commentTbl WHERE B_ID = #{b_ID}
+    </delete>
+    	<!-- 회원 탈퇴 게시글 삭제 -->
+    <delete id="withDrawal" parameterType="int" >
+        DELETE FROM boardtbl WHERE M_ID = #{m_id}
+    </delete>
+	
+</mapper>
+
+

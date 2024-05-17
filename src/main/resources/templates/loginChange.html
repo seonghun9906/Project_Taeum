@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <link rel="shortcut icon" href="#">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taeum</title>
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script th:inline="javascript">
+        $(function () {
+            var msg = /*[[${msg}]]*/ null;
+            if (msg != null) {
+                alert(msg);
+            }
+        });
+    </script>
+    <th:block th:insert="~{fragments :: header}">
+        <script th:inline="javascript">
+            $(function () {
+                var member = /*[[${session.member}]]*/ null;
+                console.log("Member: ", member);
+            });
+        </script>
+    </th:block>
+</head>
+<body>
+<section>
+    <div class="content">
+        <form th:action="@{/loginChangeProc}" method="post"
+              class="login-form" name="jForm"
+              onsubmit="return check()">
+            <h2 class="login-header">계정 전환</h2>
+            <select class="login-input" name="num">
+        <option value=1>어드민</option>    
+    	<option value=2>드라이버1</option>
+    	<option value=3>드라이버2</option>
+    	<option value=4>드라이버3</option>
+		</select>
+            <input type="submit" class="login-btn"
+                   value="전환">
+        </form>
+    </div>
+</section>
+<th:block th:insert="~{fragments :: footer}" />
+</body>
+<script th:inline="javascript">
+window.onload = function() {
+    
+var nList = /*[[${nList}]]*/ null;
+
+//redCircle 이미지 요소 가져오기
+var redCircle = document.getElementById('redCircle');
+
+// nList 값이 존재하면 redCircle 이미지 표시
+if (nList && nList.length > 0) {
+    redCircle.style.display = 'inline'; // redCircle 이미지 표시
+} else {
+    redCircle.style.display = 'none'; // redCircle 이미지 숨김
+}
+};
+</script>
+</html>

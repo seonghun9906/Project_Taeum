@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<script src="js/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+ <th:block th:insert="~{fragments :: header}" />
+</head>
+<body>
+
+	<section>
+
+		<fieldset class="routeCheck-left-side">
+			<div class="driverInfo">
+				<div class="driver-image">
+					<img alt="프로필 이미지" src="">
+				</div>
+				<p>
+					<span th:text="${driverName.M_NAME}"></span>
+				</p>
+			</div>
+			<div th:each="route : ${routeList}">
+				<p>
+					탑승자명 <span th:text="${route.A_NAME}"></span> <br> 픽업 시간 <span
+						th:text="${route.A_DATE}"></span> <br> 승차지 <span
+						th:text="${route.A_STARTADRESS}"></span> <br> 하차지 <span
+						th:text="${route.A_ENDADRESS}"></span> <br> 탑승자 연락처 <span
+						th:text="${route.A_PHONE}"></span> <br> 보호자 연락처 <span
+						th:text="${route.M_PHONE}"></span>
+				</p>
+				<input type="button" id="" value="거절">
+				<hr>
+			</div>
+			<br> <input type="button" id="" value="경로최적화">
+		</fieldset>
+	</section>
+</body>
+</html>

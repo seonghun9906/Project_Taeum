@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<!-- External libraries -->
+<script src="/js/jquery-3.7.1.min.js"></script>
+<script
+	src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<!-- Bootstrap CSS -->
+<!-- Bootstrap CSS -->
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!-- CSS styles -->
+<link rel="stylesheet" href="/css/style.css">
+<!-- Include header fragment -->
+<th:block th:insert="~{fragments :: header}" />
+<style>
+    /* 댓글 내용을 관리자로 변경하는 스타일 */
+    .comment-list .post .oldReplyText::before {
+        content: "관리자 :";
+    }
+</style>
+</head>
+
+<body style="background-color: #f5f6f7;">
+	<h2 class="bw-h1" style="font-weight: bold;">게시글</h2>  
+	
+	<div class="b-write">
+		<div class="b-write-form">
+			<input type="hidden" name="B_ID" th:value="${boardDto.B_ID}">
+			<input type="text" class="b-write-1" name="B_TITLE"
+				th:value="${boardDto.B_TITLE}" readonly>
+			<hr class="bw-hr">
+			<textarea class="b-write-6" name="B_CONTENTS" readonly
+				th:text="${boardDto.B_CONTENTS}"></textarea>
+			<hr>
+			<input type="hidden" name="M_ID"
+				th:value="${#authentication.principal?.M_ID}"> 
+				<div class="btn2">
+				<input class="b-write-back" type="button" value="돌아가기" id="backbtn">
+				<!-- 게시글 삭제 버튼 -->
+			<div th:if="${#authorization.expression('hasRole(''ADMIN'')') or boardDto.M_ID == #authentication.principal?.M_ID}">
+				<form action="/cancelBoard" method="post">
+					<input type="hidden" name="B_ID" th:value="${boardDto.B_ID}" />
+					<button class="board-delete-btn" type="submit" onclick="return confirm('게시글을 삭제하시겠습니까?')">게시글 삭제</button>
+				</form>
+			</div>
+			</div><!-- button -->
+		</div>
+	</div>
+	<!-- b-write End -->
+
+	<div>
+	<!-- 댓글 -->
+<div class="card-body">
+ <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+    <form th:action="@{/commentProc}" class="form-horizontal" method="post">
+        <div class="row text-center" style="margin-left:30%">
+            <input type="hidden" name="B_ID" th:value="${boardDto.B_ID}">
+            <input type="hidden" name="M_ID" class="form-control input-sm" id="newReplyWriter"
+                th:value="${#authentication.principal != null ? #authentication.principal.M_ID : ''}">
+            <div class="form-group col-sm-6">
+                <input class="form-control input-sm" name="C_CONTENTS" id="newReplyText" type="text"
+                    placeholder="댓글 입력...">
+            </div>
+            <div class="form-group col-sm-1">
+                <button type="submit" class="btn btn-primary btn-sm btn-block replyAddBtn">
+                    <i class="fa fa-save"></i> 저장
+                </button>
+            </div>
+        </div>
+    </form>
+    </div> <!-- admin end -->
+</div>
+<!-- card-body End -->
+
+
+
+		<!-- 댓글 목록 -->
+		<div class="comment-list">
+			<!-- 댓글 하나를 나타내는 부분 -->
+			<div class="post replyDiv" th:each="comment : ${comments}" style="margin-left: 20%; margin-right: 30%;">
+
+				<div class="user-block">
+
+					<div class="oldReplyText">
+						<span th:text="${comment.C_CONTENTS}"></span>
+					</div>	
+
+					<span class="username"> 
+						<span th:text="${comment.C_DATE}"></span>
+					</span>
+				</div>
+					<!-- 삭제 버튼 -->
+			<div class="cancel-button">
+			<div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+				<form action="/cancelComment" method="post">
+					<input type="hidden" name="C_ID" th:value="${comment.C_ID}" />
+					<input type="hidden" name="B_ID" th:value="${comment.B_ID}" />
+					<button type="submit" onclick="return confirm('삭제 하시겠습니까?')">삭제</button>
+				</form>
+				</div><!-- admin end -->
+			</div><!-- 취소 버튼 end -->
+			
+			</div><!-- post replyDiv -->
+		</div>	<!-- comment-list End -->
+	
+
+
+
+	</div>
+	<!-- 댓글 End-->
+	<th:block th:insert="~{fragments::footer}" />
+
+	<script th:inline="javascript">
+		$("#backbtn").click(function() {
+			let url = "/board";
+			location.href = url;
+		});
+	</script>
+
+</body>
+</html>

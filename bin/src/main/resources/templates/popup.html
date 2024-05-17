@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Popup</title>
+    <!-- External libraries -->
+    <script src="js/jquery-3.7.1.min.js"></script>
+    <!-- CSS styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Include header fragment -->
+    
+</head>
+<body>
+<section>
+    <div class="content">
+        <div>
+            <h2>알림 내용</h2>
+            <form action="alldeletePop" method="post">
+            <button class ="check-btn" id="deleteAll">전체 확인</button>
+            </form>
+        </div>
+        <br>
+     
+            <!-- nList가 비어 있는 경우 -->
+            <div class = "p_content">
+            <div th:if="${#lists.isEmpty(nList)}">
+                <div style="width: 100%">알림이 없습니다.</div>
+            </div>
+            <div th:unless="${#lists.isEmpty(nList)}">
+                <div th:each="popup : ${nList}">
+                    <div class="popup-message">
+                    </div>
+                       
+                        <span th:text="${popup.message}"></span>
+                        <span th:text="${#dates.format(popup.CREATED_AT, 'yyyy-MM-dd HH:mm')}"></span>
+                       
+                        <form action="/deletePop" method="post">
+                         <input type="hidden" name="NOTIFICATION_ID" th:value="${popup.NOTIFICATION_ID}" readonly />
+                        <button class="check-btn "type="submit" style="width: 40px; text-align: center;">확인</button>
+                        </form>
+                      
+                    </div>
+                </div>
+            </div>
+            <div >
+   <button class="close-btn" type="submit">종료</button>
+   </div>
+        </div>
+</section>
+<footer>
+    <th:block th:insert="~{fragments::footer}" />
+</footer>
+</body>
+<script th:inline="javascript">
+const closeButton = document.querySelector('.close-btn');
+
+//버튼에 클릭 이벤트를 추가합니다.
+closeButton.addEventListener('click', function() {
+// 팝업창을 닫습니다.
+window.close();
+});
+</script>
+<style>
+  html, body {overflow:hidden;}
+</style>
+</html>

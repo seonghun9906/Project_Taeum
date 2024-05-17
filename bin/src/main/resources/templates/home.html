@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>Taeum</title>
+<link rel="shortcut icon" href="#">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bxslider/4.2.15/jquery.bxslider.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script
+  src="https://cdnjs.cloudflare.com/ajax/libs/bxslider/4.2.15/jquery.bxslider.min.js"></script>
+<script th:inline="javascript">
+	$(document).ready(function() {
+		// bxSlider configuration
+		$(".slider").bxSlider({
+			auto : true, // Auto slide
+			slideWidth : 600
+		// Slide width
+		});
+	});
+	
+		$(function() {
+		    const msg = /*[[${msg}]]*/null;
+		    if (msg != null) {
+		      alert(msg);
+		    }
+		  });
+
+	function redirectToLoginForm() {
+		window.location.href = '/loginForm';
+	}
+
+	function redirectToAdminMain() {
+		window.location.href = '/adminMain';
+	}
+	function redirectToDriverMain() {
+		window.location.href = '/driverModify';
+	}
+	function redirectToJoinForm() {
+		window.location.href = '/joinForm';
+	}
+	function redirectToApplyForm() {
+		window.location.href = 'applyForm';
+	}
+
+</script>
+
+<th:block th:insert="~{fragments::header}" />
+</head>
+<body>
+	<section>
+		<div class="content-home">
+			<div class="slider">
+				<div>
+					<img src="images/markus-winkler-3vlGNkDep4E-unsplash.jpg">
+				</div>
+				<div>
+					<img src="images/mealpro-uFIfEb-fPA4-unsplash.jpg">
+				</div>
+				<div>
+					<img src="images/trinity-nguyen-dG0ZnlqKXEc-unsplash.jpg">
+				</div>
+			</div>
+		</div>
+		<div class="buttons-container">
+			<!-- 로그인 상태에 따라 버튼 표시 -->
+			<th:block sec:authorize="isAnonymous()">
+				<button onclick="redirectToLoginForm()">로그인</button>
+				<button onclick="redirectToJoinForm()">회원가입</button>
+			</th:block>
+			<th:block sec:authorize="hasRole('USER')">
+				<!-- 세션에 회원 정보가 있을 때는 다른 동작을 수행할 수 있음 -->
+				<button onclick="redirectToApplyForm()">운행 신청하기</button>
+				<!-- ApplyForm 버튼 등 다른 버튼들 추가 -->
+			</th:block>
+			<th:block sec:authorize="hasRole('ADMIN')">
+				<button onclick="redirectToAdminMain()">배차 관리하기</button>
+			</th:block>
+			<th:block sec:authorize="hasRole('DRIVER')">
+				<button onclick="redirectToDriverMain()">운행하기</button>
+			</th:block>
+		</div>
+	</section>
+	<th:block th:insert="~{fragments::footer}" />
+</body>
+<script th:inline="javascript">
+window.onload = function () {
+var nList = /*[[${nList}]]*/ null;
+
+//redCircle 이미지 요소 가져오기
+var redCircle = document.getElementById('redCircle');
+
+// nList 값이 존재하면 redCircle 이미지 표시
+if (nList && nList.length > 0) {
+    redCircle.style.display = 'inline'; // redCircle 이미지 표시
+} else {
+    redCircle.style.display = 'none'; // redCircle 이미지 숨김
+}
+};
+</script>
+</html>

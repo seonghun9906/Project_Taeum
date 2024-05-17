@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<!-- External libraries -->
+<script src="js/jquery-3.7.1.min.js"></script>
+<script
+	src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<!-- Bootstrap CSS -->
+
+<!-- CSS styles -->
+<link rel="stylesheet" href="css/style.css">
+<!-- Include header fragment -->
+<th:block th:insert="~{fragments :: header}" />
+</head>
+
+<body style= background-color:#f5f6f7;>
+        <h1 class="bw-h1">문의사항 작성</h1>
+
+        <div class='b-write'>
+			 <form th:action="@{bWriteProc}" class="b-write-form" method="post">
+			 
+                <input class='b-write-1' type="text" name="B_TITLE" maxlength="15"  autofocus placeholder="제목 입력, 최대 15자까지 가능합니다" required>
+                <hr class="bw-hr">
+                <textarea class="b-write-2" name="B_CONTENTS" rows="20" cols="20"  autofocus placeholder="내용 작성,최대 254자 가능합니다" required></textarea>
+                <hr>
+                 <input type="hidden" name="M_ID" th:value="${#authentication.principal != null ? #authentication.principal.M_ID : ''}">
+                 <div class="board-btn-box-write">
+                <input class="board-btn-primary1" type="submit" value="작성">
+                 <input class="board-btn-primary1 backbtn" type="button" value="나가기" id="backbtn">
+                 </div>
+            </form><!-- 글 올리기 버튼 End -->
+	      
+        </div><!-- b-write End -->
+ 
+
+
+	<th:block th:insert="~{fragments::footer}" />
+
+	<script th:inline="javascript">
+	$(document).ready(function(){
+        $("#backbtn").click(function(){
+            let url = "/board";
+            location.href = url;
+        });
+    });
+	</script>
+
+</body>
+</html>

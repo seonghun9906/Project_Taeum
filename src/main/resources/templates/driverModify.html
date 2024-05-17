@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taeum</title>
+<script src="js/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<script th:inline="javascript">
+	$(function() {
+		let m = /*[[${msg}]]*/null;
+		if (m != null) {
+			alert(m);
+		}
+	});
+</script>
+<th:block th:insert="~{fragments :: header}" />
+</head>
+<body>
+	<section>
+		<div class="box-layout">
+			<fieldset class="profile">
+				<div class="driverInfo">
+					<div class="driver-image">
+						<img th:src="@{/upload/}+${driverImage}" alt="프로필 이미지"
+							onerror="this.onerror=null; this.src='/images/noimage.png';">
+					</div>
+					<br> <span th:text="${driver.M_NAME}"></span> <br> <span
+						th:text="${driver.M_PHONE}"></span> <br> <span
+						th:text="${driver.DR_CARNUM}"></span>
+				</div>
+				<br> <input class="btn-traffic btn-write-btn" type="button"
+					id="moveToModify" value="정보 수정">
+			</fieldset>
+			<fieldset class="raceInfo">
+				<div class="traffic-area">
+					<p>
+						<span class="span-1" th:text="${todayTraffic}"></span> <br> <br>
+						오늘 운행
+					</p>
+
+					<p>
+						<span class="span-1" th:text="${monthTraffic}"></span> <br> <br>
+						이번 달 운행
+					</p>
+
+					<p>
+						<span class="span-1" th:text="${totalTraffic}"></span> <br> <br>
+						총 운행
+					</p>
+				</div>
+				<div class="btn-area modify">
+					<input class="btn-traffic btn-move-btn" type="button"
+						id="management" th:onclick="changeButton()" value="출근"> <input
+						class="btn-traffic btn-move-btn" type="button"
+						id="moveTomainCenter" value="운행 정보">
+				</div>
+			</fieldset>
+		</div>
+	</section>
+	<th:block th:insert="~{fragments::footer}" />
+</body>
+<script th:inline="javascript">
+	// 파일 제목 처리
+	$("#file").on("change", function() {
+		let files = $("#file")[0].files;
+		console.log(files);
+
+		let fileName = ""; // 출력할 문장 저장 변수
+
+		if (files.length > 1) {
+			fileName = `${files[0].name} 외 ${files.length - 1}개`;
+		} else if (files.length === 1) {
+			fileName = files[0].name;
+		} else {
+			fileName = "파일선택";
+		}
+		$(".upload-name").val(fileName);
+	});
+
+	// 메인 센터 이동
+	$("#moveTomainCenter").click(function() {
+		location.href = `/mainCenter`;
+	});
+
+	// 정보 수정 페이지 이동 
+	$("#moveToModify").click(function() {
+		location.href = `/driverUpdate`;
+	});
+
+	// 출퇴근 버튼
+	function changeButton() {
+		let btn = document.getElementById('management');
+		let status = btn.value;
+
+		$.ajax({
+			type : "post",
+			url : "driverCommute",
+			data : {
+				status : status
+			},
+			success : function(response) {
+				// 성공 시 버튼 텍스트 변경
+				if (btn.value === "출근") {
+					alert("출근이 완료되었습니다.");
+					btn.value = "퇴근";
+					// 로컬 스토리지에 출퇴근 상태 저장
+					localStorage.setItem('commuteStatus', '퇴근');
+				} else if (btn.value === "퇴근") {
+					alert("퇴근이 완료되었습니다.");
+					btn.value = "출근";
+					// 로컬 스토리지에 출퇴근 상태 저장
+					localStorage.setItem('commuteStatus', '출근');
+				}
+			},
+			error : function(xhr, status, error) {
+				console.log("error:(");
+			}
+		}); // ajax end
+	}
+
+	document.addEventListener("DOMContentLoaded", function() {
+		let status = localStorage.getItem('commuteStatus');
+
+		if (status === "퇴근") {
+			let btn = document.getElementById('management');
+			btn.value = status;
+		} else {
+			let btn = document.getElementById('management');
+			btn.value = "출근"; // 출근 상태를 기본으로 설정
+		}
+
+		var nList = /*[[${nList}]]*/null;
+
+		//redCircle 이미지 요소 가져오기
+		var redCircle = document.getElementById('redCircle');
+
+		// nList 값이 존재하면 redCircle 이미지 표시
+		if (nList && nList.length > 0) {
+			redCircle.style.display = 'inline'; // redCircle 이미지 표시
+		} else {
+			redCircle.style.display = 'none'; // redCircle 이미지 숨김
+		}
+	});
+</script>
+</html>

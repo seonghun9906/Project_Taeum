@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.icia.Taeumproject.Dao.DriverDao">
+
+	<!-- driverMain 관련 쿼리 -->
+
+	<select id="getDriverInfo" parameterType="Integer"
+	resultType="DriverDto">
+		SELECT *
+		FROM drivertbl dt
+		JOIN membertbl mt ON dt.m_id = mt.m_id
+		WHERE mt.m_id = #{m_id}
+		LIMIT 1
+	</select>
+
+	<select id="getTodayTraffic" parameterType="Integer"
+		resultType="Integer">
+		SELECT count(D_ID)
+		FROM dispatchtbl dt JOIN drivertbl drt
+		ON
+		dt.dr_id = drt.dr_id
+		JOIN membertbl mt
+		ON drt.m_id = mt.m_id
+		WHERE
+		DATE(dt.D_SELECT) = CURDATE()
+		AND dt.D_SELECT &lt; NOW()
+		AND dt.D_STATUS
+		= '1'
+		AND mt.M_ID = #{m_id};
+	</select>
+
+	<select id="getMonthTraffic" parameterType="Integer"
+		resultType="Integer">
+		SELECT COUNT(D_ID)
+		FROM dispatchtbl dt JOIN drivertbl drt
+		ON
+		dt.dr_id = drt.dr_id
+		JOIN membertbl mt
+		ON drt.m_id = mt.m_id
+		WHERE
+		YEAR(dt.D_SELECT) = YEAR(CURDATE())
+		AND MONTH(dt.D_SELECT) =
+		MONTH(CURDATE())
+		AND dt.D_SELECT &lt; NOW()
+		AND dt.D_STATUS = '1'
+		AND
+		mt.m_id = #{m_id}
+	</select>
+
+	<select id="getTotalTraffic" parameterType="Integer"
+		resultType="Integer">
+		SELECT COUNT(D_ID)
+		FROM dispatchtbl dt JOIN drivertbl drt
+		ON
+		dt.dr_id = drt.dr_id
+		JOIN membertbl mt
+		ON drt.m_id = mt.m_id
+		WHERE
+		dt.D_SELECT &lt; NOW()
+		AND dt.D_STATUS = '1'
+		AND mt.M_ID = #{m_id}
+	</select>
+
+	<!-- getDriverImage 관련 쿼리 -->
+	<select id="getDriverImage" parameterType="Integer"
+		resultType="String">
+		SELECT DP_SYSNAME
+		FROM driverprofile
+		WHERE M_ID = #{M_ID}
+		LIMIT 1
+	</select>
+
+	<insert id="insertDriver" parameterType="DriverDto">
+		INSERT INTO drivertbl
+		VALUES(NULL,#{DR_CARNUM},#{DR_AREA},#{M_ID})
+	</insert>
+
+	<insert id="insertFile" parameterType="DriverFileDto">
+		INSERT INTO driverprofile
+		VALUES(NULL,#{DP_ORINAME},#{DP_SYSNAME},#{M_ID})
+	</insert>
+
+	<update id="updateDriver" parameterType="DriverDto">
+		update drivertbl set
+		DR_CARNUM=#{DR_CARNUM},DR_AREA=#{DR_AREA} WHERE
+		M_ID=#{M_ID}
+	</update>
+
+	<delete id="updateDriverProfile" parameterType="Integer">
+		delete from
+		driverprofile where M_ID = #{mid}
+	</delete>
+
+	<update id="updateConfirm" parameterType="DispatchDto">
+		update dispatchtbl set
+		D_STATUS='1',D_CONFIRM=now() where DR_ID=#{DR_ID} and D_ID=#{D_ID}
+	</update>
+
+	<update id="updateNodeConfirm" parameterType="DispatchDto">
+		update nodetbl set
+		STATUS='1' where DR_ID=#{DR_ID} and D_ID=#{D_ID}
+	</update>
+
+	<update id="updateCancle" parameterType="DispatchDto">
+		update dispatchtbl set
+		D_STATUS='2',D_CANCLE=now(), D_REASON=#{D_REASON}, cycle=#{cycle} where DR_ID=#{DR_ID}
+		and D_ID=#{D_ID}
+	</update>
+
+	<update id="updateNodeCancle" parameterType="DispatchDto">
+		update nodetbl set
+		STATUS='2', cycle='0' where DR_ID=#{DR_ID} and D_ID=#{D_ID}
+	</update>
+
+	<insert id="insertCommute" parameterType="Integer">
+		INSERT INTO
+		drivermanagement
+		(DR_ID, DM_STWORK)
+		values (#{dr_id}, NOW());
+	</insert>
+
+	<update id="updateCommute" parameterType="Integer">
+		UPDATE drivermanagement
+		SET DM_ENDWORK = NOW()
+		WHERE DR_ID = #{dr_id};
+	</update>
+	
+	<delete id="deleteDriverImage">
+	   DELETE FROM driverprofile
+	   WHERE M_ID = #{m_ID} and DP_SYSNAME = #{imageNum}
+	</delete>
+	
+	<delete id="deleteDispatch" parameterType="Integer">
+	   DELETE FROM dispatchtbl
+	   WHERE DR_ID = #{dr_id}
+	</delete>
+	
+	<delete id="deleteCommute" parameterType="Integer">
+	   DELETE FROM drivermanagement
+	   WHERE DR_ID = #{dr_id}
+	</delete>
+</mapper>
