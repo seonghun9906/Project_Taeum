@@ -193,10 +193,10 @@ $(document).ready(function() {
             success: function(response) {
                 // 성공적으로 서버로부터 응답을 받았을 때 수행할 작업
          
-                updateCount(); // #Count 업데이트
                 console.log("selectLocaldate = " , response);
                 nodeList = response;
                 updateMarkers();
+                updateCount(); // #Count 업데이트
                 
             },
             error: function(xhr, status, error) {

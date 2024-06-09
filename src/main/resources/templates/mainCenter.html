@@ -38,7 +38,7 @@
       </svg>
       <span class="fs-5 fw-semibold">배차 현황</span>
       <button type="button" class="btn btn-success" id="backbtn"
-      style="margin-left: 135px; top: 15px; z-index: 1030; background-color: #3F7EFC;">뒤로가기</button>
+      style="margin-left: 135px; top: 15px; background-color: #3F7EFC;">뒤로가기</button>
     </div>
           <div
       class="d-flex flex-wrap py-3 px-2 gap-3 align-items-center justify-content-center border-bottom">
@@ -46,7 +46,7 @@
       <div class="d-flex flex-column align-items-center">
         <div id="DATE-TIME"> </div>
         <div class="fw-light" style="font-size: 0.8rem">DATE
-        <button type="button" class="btn btn-secondary p-0" id="datePickerButton" >
+        <button type="button" class="btn btn-secondary p-0" id="datePickerButton" style="z-index: 9999;">
         <i class="bi bi-calendar"></i>
         </button>
         </div>
@@ -142,11 +142,12 @@ window.onload = function () {
         const selectedDate = e.format();
         document.getElementById('DATE-TIME').innerText = selectedDate;
     });
+    
     displayCurrentDate();
- 
-    var nList = /*[[${nList}]]*/ null;
+   
+   /*  var nList = [[${nList}]] null; */
 
-    //redCircle 이미지 요소 가져오기
+   /*  //redCircle 이미지 요소 가져오기
     var redCircle = document.getElementById('redCircle');
 
     // nList 값이 존재하면 redCircle 이미지 표시
@@ -154,8 +155,8 @@ window.onload = function () {
         redCircle.style.display = 'inline'; // redCircle 이미지 표시
     } else {
         redCircle.style.display = 'none'; // redCircle 이미지 숨김
-    }
-    
+    } */
+   
    
 };
 
@@ -167,10 +168,10 @@ function displayCurrentDate() {
     const day = String(currentDate.getDate()).padStart(2, '0');
 
     const dateString = `${year}-${month}-${day}`;
-    console.log("dateString = " + dateString);
+
     document.getElementById('DATE-TIME').innerText = dateString;
-    
-    /* updateCount(dateString); */
+    console.log("dateString = " + dateString);
+     updateCount(dateString); 
 }
 
 // 달력에서 날짜가 변경될 때 호출되는 함수
@@ -180,25 +181,7 @@ function onDateChange(e) {
     console.log("변경 = " + selectedDate);
     document.getElementById('DATE-TIME').innerText = selectedDate;
     
-    var nodeList = /*[[${nodeList}]]*/ null; // nodeList를 적절한 선택자로 가져옵니다.
-   	var count = 0;
-
- 	  console.log(selectedDate);
-    	 nodeList.forEach(function(node) {
-    		 var [a_date, newDate] = node.a_DATE.split(' ');
-    			console.log("a_date = " + a_date);
-    	        console.log("count = " + count);
-    	        console.log(selectedDate)
-    		 if(a_date === selectedDate){
-    			 
-    	        count++;
-    	    } else {
-    	    	count = 0;
-    	    }
-       //  console.log(nodeList.length);
-       
-     });
-         document.getElementById('Count').innerText = count; // #Count 업데이트
+    updateCount(selectedDate);
 }
 
 // 페이지가 로드될 때 이벤트 핸들러를 설정하여 초기화
@@ -213,24 +196,21 @@ $(document).ready(function() {
 // -----------------------------------------------------------------
 //#Count 업데이트 함수
      function updateCount(selectedDate) {
-     var nodeList = /*[[${nodeList}]]*/ null; // nodeList를 적절한 선택자로 가져옵니다.
-   	var count = 0;
+		console.log("updateCount = 호출" );
+            var count = 0;
+            console.log("selectedDate = " + selectedDate);
+            nodeList.forEach(function(node) {
+                var [a_date, newDate] = node.a_DATE.split(' ');
+                console.log("a_date = " + a_date);
+                if (a_date === selectedDate) {
+                    count++;
+                }else if(a_date != selectedDate){
+                	count;
+                }
+            });
+            document.getElementById('Count').innerText = count;
+        }
 
- 	  console.log(selectedDate);
-    	 nodeList.forEach(function(node) {
-    		 var [a_date, newDate] = node.a_DATE.split(' ');
-    			console.log(a_date);
-    		 if(a_date === selectedDate){
-    			 
-    	        count++;
-    	    } else {
-    	    	count = 0;
-    	    }
-       //  console.log(nodeList.length);
-         document.getElementById('Count').innerText = count; // #Count 업데이트
-       
-     });
-}
 
 
 function spinOn() {
@@ -706,8 +686,8 @@ function secondsToHoursMinutes(seconds) {
          var marker = new kakao.maps.Marker({
              position: markerPosition
          });
-         markers.push(marker);
-         updateCount();// 마커를 markers 배열에 추가합니다.
+         //markers.push(marker);
+       //  updateCount();// 마커를 markers 배열에 추가합니다.
      }
      
      
@@ -908,12 +888,12 @@ function submitRejectReason(input, nodeListRe, index) {
     return false;
 }
 
-//#Count 업데이트 함수
+/* //#Count 업데이트 함수
 function updateCount() {
     var count = nodeList.length; // nodeList의 길이가 접수 현황의 개수입니다.
-  //  console.log(nodeList.length);
+    console.log(nodeList.length);
     document.getElementById('Count').innerText = count; // #Count 업데이트
-}
+} */
 
 
 //마커를 업데이트하는 함수
